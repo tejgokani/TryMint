@@ -1,0 +1,40 @@
+{
+  "name": "trymint",
+  "version": "0.1.0",
+  "description": "TRYMINT – Try Before You Mint: A secure simulation-first command execution platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "agent"
+  ],
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:agent": "pnpm --filter agent dev",
+    "build": "pnpm run --recursive build",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:backend": "pnpm --filter backend build",
+    "build:agent": "pnpm --filter agent build",
+    "lint": "pnpm run --recursive lint",
+    "test": "pnpm run --recursive test",
+    "clean": "pnpm run --recursive clean",
+    "typecheck": "pnpm run --recursive typecheck"
+  },
+  "keywords": [
+    "simulation",
+    "command-execution",
+    "security",
+    "pty",
+    "websocket",
+    "oauth"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
