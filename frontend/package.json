@@ -4,16 +4,12 @@
   "description": "TRYMINT Frontend - React Web Application",
   "private": true,
   "scripts": {
-    "dev": "Start development server",
-    "build": "Build for production",
-    "test": "Run tests",
-    "lint": "Lint source files",
-    "preview": "Preview production build"
+    "dev": "echo \"Frontend dev server not configured yet\"",
+    "build": "echo \"Frontend build not configured yet\"",
+    "test": "echo \"No frontend tests defined yet\"",
+    "lint": "echo \"No frontend linter configured yet\"",
+    "preview": "echo \"Frontend preview not configured yet\""
   },
-  "dependencies": {
-    "Dependencies will include": "React, Redux, WebSocket client, etc."
-  },
-  "devDependencies": {
-    "Dev dependencies will include": "Testing, linting, build tools"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

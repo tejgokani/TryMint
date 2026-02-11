@@ -4,17 +4,24 @@
   "description": "TRYMINT Backend - Node.js API Server",
   "private": true,
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "dev": "Start development server with hot reload",
-    "start": "Start production server",
-    "build": "Build for production (if using TypeScript)",
-    "test": "Run tests",
-    "lint": "Lint source files"
+    "dev": "NODE_ENV=development nodemon src/index.js",
+    "start": "NODE_ENV=production node src/index.js",
+    "test": "NODE_ENV=test node --test",
+    "lint": "eslint src --ext .js"
   },
   "dependencies": {
-    "Dependencies will include": "Express, ws, JWT, OAuth libs, etc."
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.17.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "Dev dependencies will include": "Testing, linting, nodemon"
+    "eslint": "^9.0.0",
+    "nodemon": "^3.1.0"
   }
 }

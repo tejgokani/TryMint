@@ -8,16 +8,12 @@
     "trymint": "./src/cli/index.js"
   },
   "scripts": {
-    "dev": "Run agent in development mode",
-    "build": "Build CLI for distribution",
-    "test": "Run tests",
-    "lint": "Lint source files",
-    "link": "Link CLI globally for development"
+    "dev": "node src/index.js",
+    "build": "echo \"No build step defined yet\"",
+    "test": "echo \"No tests defined yet\"",
+    "lint": "echo \"No linter configured yet\"",
+    "link": "npm link"
   },
-  "dependencies": {
-    "Dependencies will include": "Commander, ws, node-pty, keytar, etc."
-  },
-  "devDependencies": {
-    "Dev dependencies will include": "Testing, linting tools"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
