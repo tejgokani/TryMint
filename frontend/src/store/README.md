@@ -1,64 +1,84 @@
 # Store Directory
 
-This directory contains state management logic.
+> Redux state management configuration
 
-## Structure
+## Purpose
 
+This directory contains Redux store configuration and state slices for managing application state.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Store configuration and export |
+| `authSlice.js` | Authentication state |
+| `sessionSlice.js` | Session state |
+| `commandSlice.js` | Command state |
+| `simulationSlice.js` | Simulation state |
+| `executionSlice.js` | Execution state |
+
+## State Shape
+
+```javascript
+{
+  auth: {
+    user: null | UserObject,
+    isAuthenticated: boolean,
+    loading: boolean,
+    error: null | string
+  },
+  
+  session: {
+    id: null | string,
+    status: 'idle' | 'connecting' | 'active' | 'expired',
+    credentials: null | CredentialsObject,
+    expiresAt: null | timestamp,
+    agentConnected: boolean
+  },
+  
+  command: {
+    current: null | string,
+    history: CommandObject[],
+    queue: CommandObject[]
+  },
+  
+  simulation: {
+    status: 'idle' | 'running' | 'completed' | 'failed',
+    result: null | SimulationResult,
+    warnings: WarningObject[]
+  },
+  
+  execution: {
+    status: 'idle' | 'running' | 'completed' | 'failed',
+    output: string[],
+    exitCode: null | number
+  }
+}
 ```
-store/
-├── auth.ts              # Authentication state
-├── session.ts           # Session state
-├── command.ts           # Command state
-├── simulation.ts        # Simulation state
-├── terminal.ts          # Terminal output state
-├── notifications.ts     # UI notifications state
-└── index.ts             # Store configuration
-```
 
-## State Descriptions
+## Slice Responsibilities
 
-### auth.ts
-Authentication and user state.
+### authSlice
+- User login/logout
+- Token storage
+- Auth error handling
 
-**State Shape:**
-- `isAuthenticated` - Boolean auth status
-- `user` - User profile object
-- `token` - Current access token
-- `loading` - Auth loading state
-- `error` - Auth error state
+### sessionSlice
+- Session lifecycle
+- Credential management
+- Agent connection state
 
-### session.ts
-Active session state.
+### commandSlice
+- Current command
+- Command history
+- Command queue
 
-**State Shape:**
-- `sessionId` - Current session ID
-- `expiresAt` - Expiration timestamp
-- `isExpired` - Expiration status
-- `agentConnected` - Agent connection status
-- `capabilities` - Allowed directories
+### simulationSlice
+- Simulation status
+- Simulation results
+- Warning management
 
-### command.ts
-Command execution state.
-
-**State Shape:**
-- `currentCommand` - Active command
-- `history` - Command history
-- `status` - Execution status
-- `pending` - Awaiting approval
-
-### simulation.ts
-Simulation result state.
-
-**State Shape:**
-- `result` - Simulation output
-- `riskLevel` - Assessed risk
-- `affectedPaths` - Affected files
-- `status` - Simulation status
-
-### terminal.ts
-Terminal output state.
-
-**State Shape:**
-- `buffer` - Output buffer
-- `isStreaming` - Stream active
-- `dimensions` - Terminal size
+### executionSlice
+- Execution status
+- Output buffering
+- Exit code tracking

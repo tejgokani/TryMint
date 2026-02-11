@@ -1,64 +1,60 @@
 # Utils Directory
 
-This directory contains utility functions and constants.
+> Utility functions and helpers
 
-## Structure
+## Purpose
 
+This directory contains shared utility functions, constants, validators, and formatters used throughout the frontend application.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `constants.js` | Application constants |
+| `helpers.js` | General helper functions |
+| `validators.js` | Input validation functions |
+| `formatters.js` | Data formatting functions |
+| `terminal.js` | Terminal output helpers |
+| `index.js` | Barrel export for all utilities |
+
+## File Details
+
+### constants.js
+- API URLs
+- WebSocket endpoints
+- Session timeout values
+- Status codes
+- Error messages
+
+### helpers.js
+- Deep clone
+- Debounce/throttle
+- Array utilities
+- Object utilities
+- Random ID generation
+
+### validators.js
+- Command validation
+- Input sanitization
+- Path validation
+- Email validation
+
+### formatters.js
+- Date formatting
+- Duration formatting
+- Byte size formatting
+- Truncation helpers
+
+### terminal.js
+- ANSI code parsing
+- Line buffer management
+- Color code conversion
+- Output sanitization
+
+## Usage
+
+All utilities are exported from index.js:
+
+```javascript
+import { formatDate, validateCommand, TIMEOUT } from '../utils';
 ```
-utils/
-├── validation.ts        # Input validation utilities
-├── formatting.ts        # Display formatting helpers
-├── constants.ts         # Application constants
-├── crypto.ts            # Cryptographic utilities
-├── storage.ts           # Local storage helpers
-├── time.ts              # Time/date utilities
-└── index.ts             # Utility exports
-```
-
-## Utility Descriptions
-
-### validation.ts
-Input validation and sanitization.
-
-- `validateCommand()` - Validate command input
-- `sanitizeInput()` - Sanitize user input
-- `isValidPath()` - Validate file paths
-- `validateSessionToken()` - Token format validation
-
-### formatting.ts
-Display formatting helpers.
-
-- `formatTimestamp()` - Format date/time
-- `formatDuration()` - Format time duration
-- `formatFileSize()` - Format byte sizes
-- `formatCommandOutput()` - Format terminal output
-- `truncateText()` - Truncate with ellipsis
-
-### constants.ts
-Application-wide constants.
-
-- `API_ENDPOINTS` - API route constants
-- `WS_EVENTS` - WebSocket event names
-- `SESSION_CONFIG` - Session configuration
-- `UI_CONFIG` - UI configuration
-- `ERROR_MESSAGES` - Error message strings
-
-### crypto.ts
-Cryptographic utilities.
-
-- `hashToken()` - Hash sensitive data
-- `generateNonce()` - Generate random nonce
-
-### storage.ts
-Local storage management.
-
-- `getStoredToken()` - Retrieve token
-- `setStoredToken()` - Store token
-- `clearStorage()` - Clear all stored data
-
-### time.ts
-Time and date utilities.
-
-- `isExpired()` - Check expiration
-- `getTimeRemaining()` - Calculate remaining time
-- `formatRelativeTime()` - Relative time display

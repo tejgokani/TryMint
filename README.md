@@ -2,166 +2,96 @@
 
 > A secure simulation-first command execution platform
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
-[![Status](https://img.shields.io/badge/status-development-orange.svg)]()
+## Overview
 
----
+TRYMINT is a security-focused platform that enables users to **simulate**, **review**, and **approve** command executions before they are actually run on their local machines. The system provides a safe sandbox environment where commands are first simulated, then reviewed for approval, and only executed after explicit user consent.
 
-## 📋 Overview
-
-TRYMINT is a secure command execution platform that enforces a **Simulation → Approval → Execution** workflow. Users authenticate via Google OAuth, receive short-lived session credentials, and interact with a local agent CLI that streams commands through PTY with directory capability-based isolation.
-
----
-
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         FRONTEND                                 │
-│              (React/Next.js Web Application)                     │
-│         Google OAuth • Session Display • Approval UI             │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │ HTTPS / WSS
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                          BACKEND                                 │
-│                    (Node.js API Server)                          │
-│     Auth Service • Session Manager • WebSocket Gateway           │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │ WebSocket (Secure Channel)
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                           AGENT                                  │
-│                    (Local CLI Daemon)                            │
-│   PTY Streaming • Simulation Engine • Directory Isolation        │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              TRYMINT PLATFORM                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────┐     WebSocket      ┌─────────────┐     WebSocket         │
+│   │  Frontend   │◄──────────────────►│   Backend   │◄───────────────┐      │
+│   │  (React)    │                    │  (Node.js)  │                │      │
+│   └─────────────┘                    └─────────────┘                │      │
+│         │                                   │                       │      │
+│         │ Google OAuth                      │ Session Management    │      │
+│         ▼                                   ▼                       │      │
+│   ┌─────────────┐                    ┌─────────────┐         ┌──────┴────┐ │
+│   │   Auth      │                    │  Credential │         │   Agent   │ │
+│   │   Flow      │                    │   Store     │         │   (CLI)   │ │
+│   └─────────────┘                    └─────────────┘         └───────────┘ │
+│                                                                    │       │
+│                                                              ┌─────▼─────┐ │
+│                                                              │   PTY     │ │
+│                                                              │ Execution │ │
+│                                                              └───────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
----
+## Core Workflow
 
-## 🔐 Core Security Principles
+```
+1. SIMULATE  →  2. REVIEW  →  3. APPROVE  →  4. EXECUTE
+     │              │              │              │
+     ▼              ▼              ▼              ▼
+  Sandbox       Preview        User OK       Real PTY
+  Output        Changes        Required      Execution
+```
 
-1. **Simulation-First**: All commands are simulated before execution
-2. **Explicit Approval**: User must approve simulated results
-3. **Short-Lived Sessions**: Credentials expire automatically
-4. **Directory Isolation**: Capability-based filesystem access
-5. **Mandatory Teardown**: Logout clears all active sessions
-
----
-
-## 📁 Repository Structure
+## Monorepo Structure
 
 ```
 trymint/
-├── frontend/          # Web application (React/Next.js)
-├── backend/           # API server (Node.js/Express)
-├── agent/             # Local CLI agent (Node.js/node-pty)
+├── frontend/          # React web application
+├── backend/           # Node.js API server
+├── agent/             # Local CLI agent
 ├── docs/              # Project documentation
-├── .gitignore         # Git ignore rules
 ├── package.json       # Workspace configuration
+├── .gitignore         # Git ignore rules
 └── README.md          # This file
 ```
 
----
+## Key Features
 
-## 🚀 Quick Start
+- **Google OAuth Authentication** - Secure user authentication
+- **Short-lived Session Credentials** - Time-bounded access tokens
+- **WebSocket Communication** - Real-time bidirectional messaging
+- **Simulation-First Execution** - All commands simulated before execution
+- **Approval Workflow** - Explicit user approval required
+- **Directory Isolation** - Capability-based access control
+- **PTY Streaming** - Full terminal emulation via node-pty
+- **Mandatory Logout Teardown** - Clean session termination
 
-See [docs/setup/](docs/setup/) for detailed setup instructions.
+## Security Model
 
-### Prerequisites
+- All commands are sandboxed and simulated first
+- No execution without explicit user approval
+- Short-lived credentials with automatic expiry
+- Directory-based capability isolation
+- Session binding between agent and user
+- Mandatory cleanup on session end
 
-- Node.js >= 18.x
-- pnpm >= 8.x
-- Google OAuth credentials
-- macOS/Linux environment
+## Quick Start
 
-### Development
+See individual README files in each directory:
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd trymint
+- [Frontend Setup](./frontend/README.md)
+- [Backend Setup](./backend/README.md)
+- [Agent Setup](./agent/README.md)
+- [Documentation](./docs/README.md)
 
-# Install dependencies
-pnpm install
+## Development
 
-# Configure environment
-cp .env.example .env
+This project uses npm workspaces. See setup documentation for details.
 
-# Start development
-pnpm dev
-```
+## License
 
----
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [Architecture Overview](docs/architecture/) | System design and component interaction |
-| [Security Model](docs/security/) | Security boundaries and threat model |
-| [API Reference](docs/api/) | REST API documentation |
-| [WebSocket Protocol](docs/websocket/) | Real-time communication protocol |
-| [Agent Guide](docs/agent/) | Local agent setup and usage |
-| [Session Lifecycle](docs/sessions/) | Session management documentation |
+MIT License
 
 ---
 
-## 🔄 Workflow
-
-```
-1. USER authenticates via Google OAuth
-           ↓
-2. BACKEND issues short-lived session token
-           ↓
-3. AGENT connects with session credentials
-           ↓
-4. USER submits command for simulation
-           ↓
-5. AGENT simulates command in isolated environment
-           ↓
-6. FRONTEND displays simulation results
-           ↓
-7. USER approves or rejects execution
-           ↓
-8. AGENT executes approved command via PTY
-           ↓
-9. LOGOUT triggers mandatory session teardown
-```
-
----
-
-## 🧩 Components
-
-### Frontend
-- Google OAuth login flow
-- Real-time command streaming display
-- Simulation result visualization
-- Approval/rejection interface
-- Session management UI
-
-### Backend
-- OAuth token validation
-- Session credential generation
-- WebSocket connection management
-- Command routing and logging
-- Session lifecycle management
-
-### Agent
-- Local PTY command execution
-- Simulation engine
-- Directory capability enforcement
-- WebSocket client connection
-- Secure credential storage
-
----
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE) for details.
-
----
-
-## 👥 Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+**TRYMINT** – *Try Before You Mint*

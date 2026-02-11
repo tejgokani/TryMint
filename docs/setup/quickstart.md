@@ -1,117 +1,128 @@
 # Quick Start Guide
 
-> Get TRYMINT running quickly
+> Get TRYMINT running in development mode
 
----
-
-## 📋 Overview
-
-This guide helps you get TRYMINT running in development mode.
-
----
-
-## ✅ Prerequisites
+## Prerequisites
 
 Before starting, ensure you have:
 
-- [ ] Node.js 18.x or higher
-- [ ] pnpm 8.x or higher
-- [ ] Google Cloud Console account
-- [ ] macOS or Linux environment
+- [ ] Node.js >= 18.x
+- [ ] npm >= 9.x
+- [ ] Git
+- [ ] Google Cloud Console project with OAuth 2.0 credentials
 
----
+## Step 1: Clone Repository
 
-## 🔧 Step 1: Clone Repository
-
-```bash
+```
 # Clone the repository
-git clone <repository-url>
-
-# Navigate to project
-cd trymint
+# Navigate to project directory
 ```
 
----
+## Step 2: Install Dependencies
 
-## 📦 Step 2: Install Dependencies
-
-```bash
-# Install all workspace dependencies
-pnpm install
+```
+# Install all workspace dependencies from root
 ```
 
----
+## Step 3: Configure Environment
 
-## 🔑 Step 3: Configure Google OAuth
+Create environment files for each package:
 
-1. Go to Google Cloud Console
-2. Create a new project (or use existing)
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
-5. Set authorized redirect URI:
-   - `http://localhost:3001/auth/google/callback`
-6. Copy Client ID and Client Secret
-
----
-
-## ⚙️ Step 4: Environment Configuration
-
-```bash
-# Copy example environment file
-cp .env.example .env
-
-# Edit .env with your values
+### Backend (.env)
+```
+TRYMINT_PORT=3000
+TRYMINT_ENV=development
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/v1/auth/callback
+JWT_SECRET=your-jwt-secret
+SESSION_TTL=7200000
+CREDENTIAL_TTL=900000
 ```
 
-**Required values**:
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `SESSION_SECRET`
-- `JWT_SECRET`
-
----
-
-## 🚀 Step 5: Start Development Servers
-
-```bash
-# Start all services
-pnpm dev
+### Frontend (.env)
+```
+REACT_APP_API_URL=http://localhost:3000/v1
+REACT_APP_WS_URL=ws://localhost:3000
 ```
 
-This starts:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:3001
+## Step 4: Start Backend
 
----
-
-## 🤖 Step 6: Connect Agent
-
-In a new terminal:
-
-```bash
-# Navigate to agent
-cd agent
-
-# Start agent and connect
-pnpm dev
+```
+# Navigate to backend directory
+# Start development server
 ```
 
-Follow prompts to enter credentials.
+Expected output:
+```
+[INFO] TRYMINT Backend starting...
+[INFO] Server running on port 3000
+[INFO] WebSocket server ready
+```
 
----
+## Step 5: Start Frontend
 
-## ✅ Verification
+```
+# Navigate to frontend directory
+# Start development server
+```
 
-1. Open http://localhost:3000
-2. Click "Login with Google"
+Expected output:
+```
+Compiled successfully!
+Local: http://localhost:3001
+```
+
+## Step 6: Build Agent
+
+```
+# Navigate to agent directory
+# Build CLI
+# Link globally (optional)
+```
+
+## Step 7: Test the Flow
+
+1. Open http://localhost:3001 in browser
+2. Click "Sign in with Google"
 3. Complete OAuth flow
-4. Verify agent connects
-5. Try a simple command
+4. Copy session token from UI
+5. In terminal, run agent connect command with token
+6. Enter a command in the UI
+7. Review simulation results
+8. Approve command
+9. Watch execution output
+10. Logout when done
 
----
+## Development Commands
 
-## 🔗 Next Steps
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start all services |
+| `npm run dev:frontend` | Start frontend only |
+| `npm run dev:backend` | Start backend only |
+| `npm run test` | Run all tests |
+| `npm run lint` | Lint all packages |
 
-- [Development Setup](development.md) - Detailed development guide
-- [Configuration](../agent/configuration.md) - Agent configuration
-- [Troubleshooting](troubleshooting.md) - Common issues
+## Troubleshooting
+
+### OAuth not working
+- Verify Google Cloud Console credentials
+- Check callback URL matches configuration
+- Ensure localhost is in authorized origins
+
+### Agent won't connect
+- Verify backend is running
+- Check token is correct
+- Ensure WebSocket port is accessible
+
+### Commands not executing
+- Check agent is connected (status command)
+- Verify directory capabilities
+- Review simulation warnings
+
+## Next Steps
+
+- Read [Architecture Overview](../architecture/overview.md)
+- Review [Security Model](../security/model.md)
+- Explore [API Reference](../api/endpoints.md)

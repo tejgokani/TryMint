@@ -1,72 +1,89 @@
-# Isolation Directory
+# Agent Isolation
 
-This directory contains directory capability-based isolation.
+> Directory capability-based isolation
 
-## Structure
+## Purpose
+
+Enforces security boundaries by validating command access against directory capabilities. Prevents unauthorized file system access.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Isolation manager |
+| `capabilities.js` | Capability checker |
+| `sandbox.js` | Sandbox environment setup |
+| `paths.js` | Path validation utilities |
+
+## Capability Model
+
+Capabilities are directory paths that the session is allowed to access:
 
 ```
-isolation/
-├── capabilities.ts      # Capability management
-├── validator.ts         # Path validation
-└── sandbox.ts           # Filesystem sandbox
+capabilities: [
+  "/home/user/projects/myapp",
+  "/tmp/trymint-workspace"
+]
 ```
 
-## Component Descriptions
+## Capability Checker (capabilities.js)
 
-### capabilities.ts
-Capability management.
+| Function | Purpose |
+|----------|---------|
+| `canAccess(path, capabilities)` | Check if path is allowed |
+| `extractPaths(command)` | Extract paths from command |
+| `validateCommand(command, capabilities)` | Validate full command |
+| `getViolations(command, capabilities)` | List violations |
 
-**Responsibilities:**
-- Parse capability configuration
-- Manage allowed directories
-- Check directory access
-- Handle capability inheritance
-- Log access attempts
+## Path Validation (paths.js)
 
-**Capability Model:**
+| Function | Purpose |
+|----------|---------|
+| `resolve(path)` | Resolve to absolute path |
+| `normalize(path)` | Normalize path |
+| `isSubPath(child, parent)` | Check containment |
+| `followSymlinks(path)` | Resolve symlinks |
+| `detectEscape(path, root)` | Detect escape attempts |
+
+## Security Checks
+
+### Path Escape Prevention
+- `../` traversal detection
+- Symlink resolution and validation
+- Absolute path enforcement
+- Canonicalization before check
+
+### Command Analysis
+- Redirect target validation (`>`, `>>`)
+- Pipe destination validation (`|`)
+- Background job validation (`&`)
+- Subshell command extraction
+
+## Sandbox Environment (sandbox.js)
+
+| Function | Purpose |
+|----------|---------|
+| `createEnvironment(capabilities)` | Build safe environment |
+| `sanitizeEnv(env)` | Remove dangerous env vars |
+| `setWorkingDir(path, capabilities)` | Set safe working dir |
+| `restrictPath(env, capabilities)` | Restrict PATH |
+
+## Violation Response
+
+When a capability violation is detected:
+1. Block the command
+2. Log the violation
+3. Report to backend
+4. Return detailed error to user
+
+## Examples
+
 ```
-Capability = {
-  path: string,           # Absolute path
-  permissions: string[],  # read, write, execute
-  recursive: boolean      # Include subdirectories
-}
+Allowed: /home/user/project
+
+✓ cat /home/user/project/file.txt
+✓ ls /home/user/project/src
+✗ cat /etc/passwd
+✗ rm -rf /
+✗ cat /home/user/project/../../../etc/passwd
 ```
-
-**Operations:**
-- `hasCapability(path, permission)` - Check access
-- `addCapability(capability)` - Add capability
-- `removeCapability(path)` - Remove capability
-- `listCapabilities()` - List all capabilities
-
-### validator.ts
-Path validation.
-
-**Responsibilities:**
-- Validate requested paths
-- Resolve real paths
-- Detect path traversal
-- Check against capabilities
-- Handle symlinks
-
-**Validations:**
-- Path exists
-- Path is within allowed directories
-- No traversal attempts (..)
-- Symlink target is allowed
-- Path is normalized
-
-### sandbox.ts
-Filesystem sandbox.
-
-**Responsibilities:**
-- Create sandboxed environment
-- Restrict filesystem access
-- Intercept filesystem calls
-- Log access violations
-- Enforce capability rules
-
-**Enforcement:**
-- Block unauthorized reads
-- Block unauthorized writes
-- Block unauthorized execution
-- Log violation attempts

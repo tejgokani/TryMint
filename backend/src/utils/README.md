@@ -1,67 +1,64 @@
-# Utils Directory
+# Backend Utilities
 
-This directory contains utility functions.
+> Utility functions and helpers
 
-## Structure
+## Purpose
 
-```
-utils/
-├── crypto.ts            # Cryptographic utilities
-├── validation.ts        # Validation helpers
-├── logger.ts            # Logging utility
-├── constants.ts         # Application constants
-├── errors.ts            # Custom error classes
-└── index.ts             # Utility exports
-```
+Shared utility functions used across the backend. Includes cryptographic helpers, validators, custom errors, and logging.
 
-## Utility Descriptions
+## File Map
 
-### crypto.ts
-Cryptographic utilities.
+| File | Purpose |
+|------|---------|
+| `crypto.js` | Cryptographic utilities |
+| `validators.js` | Validation helpers |
+| `errors.js` | Custom error classes |
+| `logger.js` | Logging utility |
+| `helpers.js` | General helpers |
+| `index.js` | Barrel export |
 
-**Functions:**
-- `generateToken()` - Generate secure token
-- `hashPassword()` - Hash sensitive data
-- `verifyHash()` - Verify hash
-- `generateNonce()` - Generate nonce
-- `signPayload()` - Sign JWT payload
-- `verifySignature()` - Verify JWT signature
+## File Details
 
-### validation.ts
-Validation helpers.
+### crypto.js
+| Function | Purpose |
+|----------|---------|
+| `generateToken(length)` | Generate random token |
+| `hashToken(token)` | Hash token for storage |
+| `compareHash(token, hash)` | Compare token to hash |
+| `generateSessionId()` | Generate session ID |
+| `encryptData(data, key)` | Encrypt sensitive data |
+| `decryptData(cipher, key)` | Decrypt data |
 
-**Functions:**
-- `validateEmail()` - Email validation
-- `validateCommand()` - Command validation
-- `validatePath()` - Path validation
-- `sanitizeInput()` - Input sanitization
-- `validateToken()` - Token format validation
+### validators.js
+| Function | Purpose |
+|----------|---------|
+| `isValidCommand(cmd)` | Validate command string |
+| `isValidPath(path)` | Validate file path |
+| `isValidEmail(email)` | Validate email format |
+| `sanitizeInput(input)` | Sanitize user input |
 
-### logger.ts
-Logging utility.
+### errors.js
+| Class | Purpose |
+|-------|---------|
+| `AppError` | Base error class |
+| `AuthenticationError` | Auth failures |
+| `AuthorizationError` | Permission failures |
+| `ValidationError` | Validation failures |
+| `NotFoundError` | Resource not found |
+| `SessionExpiredError` | Expired session |
 
-**Features:**
-- Structured logging
-- Log levels
-- Request ID tracking
-- Sensitive data redaction
-- Output formatting
+### logger.js
+| Method | Purpose |
+|--------|---------|
+| `info(message, meta)` | Info level log |
+| `warn(message, meta)` | Warning level log |
+| `error(message, error)` | Error level log |
+| `debug(message, meta)` | Debug level log |
 
-### constants.ts
-Application constants.
-
-**Constants:**
-- `HTTP_STATUS` - HTTP status codes
-- `ERROR_CODES` - Error code enumeration
-- `WS_EVENTS` - WebSocket event names
-- `SESSION_DEFAULTS` - Default session config
-
-### errors.ts
-Custom error classes.
-
-**Classes:**
-- `AppError` - Base application error
-- `AuthError` - Authentication error
-- `SessionError` - Session error
-- `ValidationError` - Validation error
-- `WebSocketError` - WebSocket error
+### helpers.js
+| Function | Purpose |
+|----------|---------|
+| `sleep(ms)` | Async delay |
+| `retry(fn, times)` | Retry with backoff |
+| `pick(obj, keys)` | Pick object keys |
+| `omit(obj, keys)` | Omit object keys |

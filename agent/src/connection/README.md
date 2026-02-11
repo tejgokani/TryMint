@@ -1,69 +1,64 @@
-# Connection Directory
+# Agent Connection
 
-This directory contains WebSocket client implementation.
+> WebSocket connection management
 
-## Structure
+## Purpose
+
+Manages the WebSocket connection between the agent and the backend server. Handles connection lifecycle, message routing, reconnection, and heartbeat.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Connection manager class |
+| `handlers.js` | Incoming message handlers |
+| `reconnect.js` | Reconnection logic |
+| `heartbeat.js` | Heartbeat management |
+
+## Connection Lifecycle
 
 ```
-connection/
-├── client.ts            # WebSocket client
-├── reconnect.ts         # Reconnection logic
-├── heartbeat.ts         # Heartbeat management
-└── handlers.ts          # Message handlers
+DISCONNECTED → CONNECTING → CONNECTED → AUTHENTICATED
+      ↑              │            │            │
+      │              ▼            │            │
+      └───────── FAILED ◄────────┘            │
+      │                                        │
+      └──────────── TERMINATED ◄──────────────┘
 ```
 
-## Component Descriptions
+## Message Handlers
 
-### client.ts
-WebSocket client implementation.
+| Message Type | Handler | Action |
+|--------------|---------|--------|
+| `auth:success` | onAuthSuccess | Mark authenticated |
+| `auth:failed` | onAuthFailed | Handle auth failure |
+| `command:simulate` | onSimulate | Trigger simulation |
+| `command:execute` | onExecute | Trigger execution |
+| `command:cancel` | onCancel | Cancel running command |
+| `session:terminate` | onTerminate | Clean shutdown |
+| `ping` | onPing | Respond with pong |
 
-**Responsibilities:**
-- Create WebSocket connection
-- Handle connection lifecycle
-- Send messages to backend
-- Receive and dispatch messages
-- Handle connection errors
+## Reconnection Logic
 
-**Events:**
-- `open` - Connection established
-- `close` - Connection closed
-- `error` - Connection error
-- `message` - Message received
+- Automatic reconnection on disconnect
+- Exponential backoff (1s, 2s, 4s, 8s, max 30s)
+- Max retry attempts: 10
+- Re-authenticate on reconnect
+- Queue messages during disconnect
 
-### reconnect.ts
-Reconnection strategy.
+## Heartbeat
 
-**Responsibilities:**
-- Track connection state
-- Implement exponential backoff
-- Limit reconnection attempts
-- Handle permanent failure
+- Send heartbeat every 30 seconds
+- Expect response within 10 seconds
+- Disconnect if no response
+- Include agent status in heartbeat
 
-**Configuration:**
-- Initial delay
-- Max delay
-- Backoff multiplier
-- Max attempts
+## Outgoing Messages
 
-### heartbeat.ts
-Heartbeat management.
-
-**Responsibilities:**
-- Send periodic ping
-- Handle pong response
-- Detect connection loss
-- Trigger reconnection
-
-**Configuration:**
-- Heartbeat interval
-- Timeout threshold
-
-### handlers.ts
-Message handlers.
-
-**Handlers:**
-- `authenticated` - Handle auth success
-- `command:simulate` - Handle simulation request
-- `command:execute` - Handle execution request
-- `command:cancel` - Handle cancellation
-- `ping` - Handle ping request
+| Function | Message Type | Purpose |
+|----------|--------------|---------|
+| `sendSimulationResult(result)` | `simulation:result` | Send sim result |
+| `sendExecutionOutput(chunk)` | `execution:output` | Stream output |
+| `sendExecutionComplete(result)` | `execution:complete` | Execution done |
+| `sendHeartbeat()` | `heartbeat` | Heartbeat ping |
+| `sendError(error)` | `error` | Report error |

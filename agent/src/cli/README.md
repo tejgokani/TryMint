@@ -1,73 +1,59 @@
-# CLI Directory
+# Agent CLI
 
-This directory contains the command-line interface.
+> Command-line interface for the TRYMINT agent
 
-## Structure
+## Purpose
 
-```
-cli/
-├── index.ts             # CLI entry point
-├── commands/            # CLI commands
-│   ├── connect.ts       # Connect command
-│   ├── disconnect.ts    # Disconnect command
-│   ├── status.ts        # Status command
-│   └── config.ts        # Config command
-└── prompts.ts           # Interactive prompts
-```
+Provides the command-line interface for users to interact with the agent. Handles argument parsing, user prompts, and terminal output.
 
-## Component Descriptions
+## File Map
 
-### index.ts
-CLI entry point and command routing.
+| File | Purpose |
+|------|---------|
+| `index.js` | CLI entry point and commander setup |
+| `commands.js` | CLI command definitions |
+| `prompts.js` | Interactive user prompts |
+| `output.js` | Terminal output formatting |
 
-**Responsibilities:**
-- Parse command-line arguments
-- Route to appropriate command
-- Display help information
-- Handle global options
+## Commands
 
-### commands/connect.ts
-Connect to backend server.
+### `trymint connect <token>`
+Connect to the backend with a session token.
 
-**Flow:**
-1. Check for existing credentials
-2. Prompt for credentials if needed
-3. Establish WebSocket connection
-4. Authenticate with backend
-5. Start heartbeat
-6. Enter daemon mode
+Options:
+- `--server <url>` - Backend server URL
+- `--silent` - Suppress output
 
-### commands/disconnect.ts
-Disconnect from backend.
+### `trymint status`
+Display current connection and session status.
 
-**Flow:**
-1. Send disconnect message
-2. Close WebSocket connection
-3. Clear session state
-4. Exit daemon mode
-
-### commands/status.ts
-Display agent status.
-
-**Output:**
-- Connection status
-- Session information
-- Credential expiration
+Output includes:
+- Connection state
+- Session ID
+- Credential expiry
 - Allowed directories
 
-### commands/config.ts
-Configure agent settings.
+### `trymint disconnect`
+Disconnect from backend and clean up.
 
-**Options:**
-- Backend URL
-- Credential storage location
-- Log level
-- Heartbeat interval
+Actions:
+- Close WebSocket
+- Clear credentials
+- Kill running processes
 
-### prompts.ts
-Interactive prompts.
+### `trymint version`
+Display agent version information.
 
-**Prompts:**
-- Credential input
-- Confirmation dialogs
-- Configuration options
+### `trymint help`
+Display help information.
+
+## Output Formatting
+
+| Function | Purpose |
+|----------|---------|
+| `success(msg)` | Green success message |
+| `error(msg)` | Red error message |
+| `warn(msg)` | Yellow warning message |
+| `info(msg)` | Blue info message |
+| `progress(msg)` | Animated progress |
+| `table(data)` | Formatted table |

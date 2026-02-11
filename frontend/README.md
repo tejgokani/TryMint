@@ -1,159 +1,210 @@
-# Frontend
+# Frontend – TRYMINT Web Application
 
-> TRYMINT Web Application
+> React-based web interface for the TRYMINT simulation-first execution platform
 
----
+## Purpose
 
-## 📋 Overview
+The frontend provides the user interface for:
+- User authentication (Google OAuth)
+- Session management
+- Command simulation preview
+- Approval workflow interface
+- Real-time execution monitoring
+- Terminal output display
 
-The frontend package provides the web-based user interface for TRYMINT. Built with React/Next.js, it handles user authentication, command visualization, simulation result display, and the approval workflow.
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    FRONTEND LAYER                        │
-├─────────────────────────────────────────────────────────┤
-│  Pages          │  Route-based page components          │
-│  Components     │  Reusable UI components               │
-│  Hooks          │  Custom React hooks                   │
-│  Services       │  API and WebSocket clients            │
-│  Store          │  State management                     │
-│  Types          │  TypeScript definitions               │
-│  Utils          │  Helper functions                     │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 frontend/
 ├── src/
-│   ├── app/                 # Next.js App Router pages
-│   │   ├── (auth)/          # Authentication routes
-│   │   ├── (dashboard)/     # Protected dashboard routes
-│   │   ├── layout.tsx       # Root layout
-│   │   └── page.tsx         # Landing page
-│   ├── components/          # React components
-│   │   ├── auth/            # Authentication components
-│   │   ├── command/         # Command input/display
-│   │   ├── simulation/      # Simulation result display
-│   │   ├── approval/        # Approval workflow UI
-│   │   ├── session/         # Session management UI
-│   │   ├── terminal/        # PTY terminal display
-│   │   └── ui/              # Base UI components
-│   ├── hooks/               # Custom React hooks
-│   │   ├── useAuth.ts       # Authentication hook
-│   │   ├── useSession.ts    # Session management
-│   │   ├── useWebSocket.ts  # WebSocket connection
-│   │   └── useCommand.ts    # Command execution
-│   ├── services/            # External service clients
-│   │   ├── api.ts           # REST API client
-│   │   ├── websocket.ts     # WebSocket client
-│   │   └── auth.ts          # Auth service
-│   ├── store/               # State management
-│   │   ├── auth.ts          # Auth state
-│   │   ├── session.ts       # Session state
-│   │   └── command.ts       # Command state
-│   ├── types/               # TypeScript definitions
-│   │   ├── auth.ts          # Auth types
-│   │   ├── session.ts       # Session types
-│   │   ├── command.ts       # Command types
-│   │   └── websocket.ts     # WebSocket message types
-│   ├── utils/               # Utility functions
-│   │   ├── validation.ts    # Input validation
-│   │   ├── formatting.ts    # Display formatting
-│   │   └── constants.ts     # Application constants
-│   └── styles/              # Global styles
-│       └── globals.css      # Global CSS
-├── public/                  # Static assets
-│   ├── icons/               # Application icons
-│   └── images/              # Static images
-├── package.json             # Package configuration
-├── tsconfig.json            # TypeScript configuration
-├── next.config.js           # Next.js configuration
-├── tailwind.config.js       # Tailwind CSS configuration
-└── README.md                # This file
+│   ├── app/                    # Application entry and routing
+│   ├── components/             # React components
+│   │   ├── approval/           # Approval workflow components
+│   │   ├── auth/               # Authentication components
+│   │   ├── command/            # Command input components
+│   │   ├── common/             # Shared UI components
+│   │   ├── execution/          # Execution display components
+│   │   ├── session/            # Session management components
+│   │   └── simulation/         # Simulation preview components
+│   ├── hooks/                  # Custom React hooks
+│   ├── services/               # API and WebSocket services
+│   ├── store/                  # State management
+│   ├── types/                  # TypeScript type definitions
+│   └── utils/                  # Utility functions
+├── public/                     # Static assets
+├── package.json                # Package configuration
+└── README.md                   # This file
 ```
 
----
+## File Map
 
-## 🔑 Key Responsibilities
+### `/src/app/`
+| File | Purpose |
+|------|---------|
+| `index.js` | Application entry point |
+| `App.js` | Root component with routing |
+| `routes.js` | Route definitions |
 
-### Authentication Flow
-- Initiate Google OAuth login
-- Handle OAuth callback
-- Store and refresh tokens
-- Display authentication state
+### `/src/components/approval/`
+| File | Purpose |
+|------|---------|
+| `ApprovalDialog.js` | Modal for command approval |
+| `ApprovalActions.js` | Approve/Reject buttons |
+| `DiffViewer.js` | Shows simulation vs execution diff |
 
-### Session Management
-- Display active sessions
-- Show session expiration
-- Handle session refresh
-- Trigger logout/teardown
+### `/src/components/auth/`
+| File | Purpose |
+|------|---------|
+| `LoginButton.js` | Google OAuth login trigger |
+| `LogoutButton.js` | Session termination trigger |
+| `AuthGuard.js` | Protected route wrapper |
+| `AuthCallback.js` | OAuth callback handler |
 
-### Command Interface
-- Accept command input
-- Display command history
-- Show execution status
-- Stream PTY output
+### `/src/components/command/`
+| File | Purpose |
+|------|---------|
+| `CommandInput.js` | Command entry field |
+| `CommandHistory.js` | Previous commands list |
+| `CommandQueue.js` | Pending commands display |
 
-### Simulation Display
-- Render simulation results
-- Highlight potential changes
-- Show risk assessment
-- Display affected resources
+### `/src/components/common/`
+| File | Purpose |
+|------|---------|
+| `Button.js` | Reusable button component |
+| `Modal.js` | Modal dialog wrapper |
+| `Loading.js` | Loading spinner |
+| `ErrorBoundary.js` | Error handling wrapper |
+| `Layout.js` | Page layout component |
 
-### Approval Workflow
-- Present approval dialog
-- Capture user decision
-- Send approval/rejection
-- Confirm execution
+### `/src/components/execution/`
+| File | Purpose |
+|------|---------|
+| `ExecutionPanel.js` | Main execution display |
+| `TerminalOutput.js` | PTY output renderer |
+| `ExecutionStatus.js` | Status indicator |
+| `ExecutionLog.js` | Execution history log |
 
----
+### `/src/components/session/`
+| File | Purpose |
+|------|---------|
+| `SessionStatus.js` | Session state display |
+| `SessionTimer.js` | Credential expiry countdown |
+| `AgentConnection.js` | Agent connection status |
+| `SessionControls.js` | Session management actions |
 
-## 🔌 Service Integration
+### `/src/components/simulation/`
+| File | Purpose |
+|------|---------|
+| `SimulationPreview.js` | Simulation output display |
+| `SimulationDiff.js` | Expected changes preview |
+| `SimulationWarnings.js` | Risk/warning indicators |
+| `SimulationActions.js` | Simulation control buttons |
 
-### REST API
-- `POST /auth/login` - Initiate OAuth
-- `POST /auth/logout` - Session teardown
-- `GET /session/status` - Session info
-- `GET /commands/history` - Command history
+### `/src/hooks/`
+| File | Purpose |
+|------|---------|
+| `useAuth.js` | Authentication state hook |
+| `useSession.js` | Session management hook |
+| `useWebSocket.js` | WebSocket connection hook |
+| `useSimulation.js` | Simulation state hook |
+| `useExecution.js` | Execution state hook |
+| `useApproval.js` | Approval workflow hook |
 
-### WebSocket Events
-- `session:connected` - Connection established
-- `command:simulate` - Send for simulation
-- `simulation:result` - Receive results
-- `command:approve` - Approve execution
-- `command:output` - Stream execution output
+### `/src/services/`
+| File | Purpose |
+|------|---------|
+| `api.js` | REST API client |
+| `websocket.js` | WebSocket client |
+| `auth.js` | Authentication service |
+| `session.js` | Session service |
+| `command.js` | Command service |
 
----
+### `/src/store/`
+| File | Purpose |
+|------|---------|
+| `index.js` | Store configuration |
+| `authSlice.js` | Authentication state |
+| `sessionSlice.js` | Session state |
+| `commandSlice.js` | Command state |
+| `simulationSlice.js` | Simulation state |
+| `executionSlice.js` | Execution state |
 
-## 🛠️ Development
+### `/src/types/`
+| File | Purpose |
+|------|---------|
+| `auth.js` | Authentication types |
+| `session.js` | Session types |
+| `command.js` | Command types |
+| `websocket.js` | WebSocket message types |
+| `api.js` | API response types |
 
-```bash
-# Install dependencies
-pnpm install
+### `/src/utils/`
+| File | Purpose |
+|------|---------|
+| `constants.js` | Application constants |
+| `helpers.js` | General helpers |
+| `validators.js` | Input validation |
+| `formatters.js` | Data formatters |
+| `terminal.js` | Terminal output helpers |
 
-# Start development server
-pnpm dev
+## Component Hierarchy
 
-# Build for production
-pnpm build
-
-# Run linting
-pnpm lint
-
-# Run type checking
-pnpm typecheck
+```
+App
+├── AuthGuard
+│   ├── Layout
+│   │   ├── SessionStatus
+│   │   ├── SessionTimer
+│   │   └── AgentConnection
+│   │
+│   ├── CommandInput
+│   │   └── CommandHistory
+│   │
+│   ├── SimulationPreview
+│   │   ├── SimulationDiff
+│   │   ├── SimulationWarnings
+│   │   └── SimulationActions
+│   │
+│   ├── ApprovalDialog
+│   │   ├── DiffViewer
+│   │   └── ApprovalActions
+│   │
+│   └── ExecutionPanel
+│       ├── TerminalOutput
+│       ├── ExecutionStatus
+│       └── ExecutionLog
+│
+└── AuthCallback
 ```
 
----
+## State Flow
 
-## 📄 Configuration
+```
+┌─────────────────────────────────────────────────────────┐
+│                      Store                              │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  authSlice ──► sessionSlice ──► commandSlice           │
+│                     │               │                   │
+│                     ▼               ▼                   │
+│              simulationSlice ──► executionSlice        │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
 
-See `.env.example` in the root directory for required environment variables.
+## WebSocket Events
+
+The frontend subscribes to these WebSocket channels:
+- `session:status` - Session state updates
+- `simulation:result` - Simulation output
+- `execution:output` - PTY stream data
+- `execution:complete` - Execution finished
+- `agent:status` - Agent connection state
+
+## Security Considerations
+
+- OAuth tokens stored securely (httpOnly cookies preferred)
+- Short-lived session tokens
+- Automatic session cleanup on logout
+- No sensitive data in localStorage
+- CSRF protection enabled

@@ -1,61 +1,76 @@
 # Hooks Directory
 
-This directory contains custom React hooks for shared logic.
+> Custom React hooks for state and logic encapsulation
 
-## Structure
+## Purpose
 
-```
-hooks/
-├── useAuth.ts           # Authentication state and methods
-├── useSession.ts        # Session lifecycle management
-├── useWebSocket.ts      # WebSocket connection management
-├── useCommand.ts        # Command submission and tracking
-├── useSimulation.ts     # Simulation result handling
-├── useApproval.ts       # Approval workflow state
-├── useTerminal.ts       # Terminal output streaming
-└── index.ts             # Hook exports
-```
+This directory contains custom React hooks that encapsulate business logic, state management, and side effects. These hooks are used by components to access shared functionality.
 
-## Hook Descriptions
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `useAuth.js` | Authentication state and actions |
+| `useSession.js` | Session management and state |
+| `useWebSocket.js` | WebSocket connection management |
+| `useSimulation.js` | Simulation state and actions |
+| `useExecution.js` | Execution state and actions |
+| `useApproval.js` | Approval workflow state |
+| `useAgent.js` | Agent connection state |
+| `useCredentials.js` | Credential lifecycle |
+| `useTerminal.js` | Terminal output handling |
+| `index.js` | Barrel export for all hooks |
+
+## Hook Details
 
 ### useAuth
-- Access current authentication state
-- Get user profile information
-- Trigger login/logout flows
-- Check authentication status
+```
+Returns: { user, isAuthenticated, login, logout, loading }
+```
 
 ### useSession
-- Get current session details
-- Monitor session expiration
-- Handle session refresh
-- Check session validity
+```
+Returns: { session, isActive, connect, disconnect, refresh }
+```
 
 ### useWebSocket
-- Establish WebSocket connection
-- Send/receive messages
-- Handle reconnection
-- Monitor connection state
-
-### useCommand
-- Submit commands for simulation
-- Track command execution status
-- Access command history
-- Handle command cancellation
+```
+Returns: { connected, send, subscribe, unsubscribe }
+```
 
 ### useSimulation
-- Receive simulation results
-- Parse simulation output
-- Track simulation status
-- Handle simulation errors
+```
+Returns: { result, isSimulating, simulate, reset }
+```
+
+### useExecution
+```
+Returns: { output, status, execute, cancel }
+```
 
 ### useApproval
-- Submit approval/rejection
-- Track approval status
-- Handle approval timeout
-- Access approval history
+```
+Returns: { pending, approve, reject, skip }
+```
+
+### useAgent
+```
+Returns: { connected, version, lastHeartbeat }
+```
+
+### useCredentials
+```
+Returns: { credentials, expiresIn, refresh, isExpiring }
+```
 
 ### useTerminal
-- Subscribe to PTY output
-- Handle output buffering
-- Manage terminal resize
-- Clear terminal state
+```
+Returns: { lines, append, clear, scroll }
+```
+
+## Usage Pattern
+
+Hooks connect to:
+1. Redux store (via useSelector/useDispatch)
+2. WebSocket service (for real-time updates)
+3. API service (for REST calls)

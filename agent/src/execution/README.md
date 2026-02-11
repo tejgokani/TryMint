@@ -1,73 +1,101 @@
-# Execution Directory
+# Agent Execution
 
-This directory contains PTY-based command execution.
+> Command execution with PTY streaming
 
-## Structure
+## Purpose
+
+Handles the actual execution of approved commands using node-pty. Manages PTY sessions, streams output, handles signals, and reports results.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Execution coordinator |
+| `pty.js` | PTY session management |
+| `stream.js` | Output streaming to backend |
+| `lifecycle.js` | Execution lifecycle management |
+
+## PTY Management (pty.js)
+
+| Function | Purpose |
+|----------|---------|
+| `spawn(command, options)` | Spawn PTY process |
+| `write(data)` | Write to PTY stdin |
+| `resize(cols, rows)` | Resize PTY |
+| `kill(signal)` | Kill PTY process |
+| `onData(callback)` | Register data handler |
+| `onExit(callback)` | Register exit handler |
+
+## Execution Flow
 
 ```
-execution/
-├── pty.ts               # PTY manager
-├── executor.ts          # Command executor
-├── stream.ts            # Output streaming
-└── cleanup.ts           # Execution cleanup
+1. Receive execute command
+         │
+         ▼
+2. Validate against capabilities
+         │
+         ▼
+3. Spawn PTY with command
+         │
+         ▼
+4. Stream output to backend
+         │
+         ▼
+5. Handle exit/signal
+         │
+         ▼
+6. Report completion
 ```
 
-## Component Descriptions
+## Streaming (stream.js)
 
-### pty.ts
-PTY manager using node-pty.
+| Function | Purpose |
+|----------|---------|
+| `createStream(executionId)` | Create output stream |
+| `write(chunk)` | Buffer and send chunk |
+| `flush()` | Force send buffered data |
+| `end(exitCode)` | End stream with result |
 
-**Responsibilities:**
-- Create PTY instance
-- Configure terminal dimensions
-- Handle terminal resize
-- Manage PTY lifecycle
-- Clean up PTY resources
+Stream characteristics:
+- Buffer small chunks for efficiency
+- Flush on newline or timeout (100ms)
+- Handle backpressure
+- UTF-8 encoding
 
-**Configuration:**
-- Shell executable
-- Initial dimensions
-- Environment variables
-- Working directory
+## Lifecycle (lifecycle.js)
 
-### executor.ts
-Command executor.
+| Function | Purpose |
+|----------|---------|
+| `start(executionId)` | Mark execution started |
+| `running(pid)` | Track running process |
+| `complete(exitCode)` | Mark completed |
+| `failed(error)` | Mark failed |
+| `cancel()` | Cancel execution |
+| `cleanup()` | Clean up resources |
 
-**Responsibilities:**
-- Execute approved commands
-- Manage execution state
-- Handle command signals
-- Track execution status
-- Report completion
+## Execution States
 
-**States:**
-- `PENDING` - Waiting to execute
-- `RUNNING` - Currently executing
-- `COMPLETED` - Finished successfully
-- `FAILED` - Execution failed
-- `CANCELLED` - User cancelled
+```
+PENDING → STARTING → RUNNING → COMPLETED
+                        │           │
+                        ▼           │
+                     CANCELLED      │
+                        │           │
+                        ▼           ▼
+                     FAILED ◄───────┘
+```
 
-### stream.ts
-Output streaming.
+## Signal Handling
 
-**Responsibilities:**
-- Capture PTY output
-- Buffer output data
-- Stream to backend
-- Handle output encoding
-- Manage flow control
+| Signal | Action |
+|--------|--------|
+| SIGTERM | Graceful shutdown |
+| SIGKILL | Force kill |
+| SIGINT | Interrupt (Ctrl+C forward) |
+| SIGHUP | Hangup handling |
 
-**Streaming:**
-- Real-time streaming
-- Chunked transmission
-- Backpressure handling
+## Resource Limits
 
-### cleanup.ts
-Execution cleanup.
-
-**Responsibilities:**
-- Kill running processes
-- Clean up PTY instances
-- Remove temporary files
-- Reset execution state
-- Handle cleanup errors
+- Max execution time: configurable (default 5 min)
+- Max output buffer: 10MB
+- Max concurrent: 1 (sequential execution)

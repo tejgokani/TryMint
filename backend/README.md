@@ -1,194 +1,195 @@
-# Backend
+# Backend – TRYMINT API Server
 
-> TRYMINT API Server
+> Node.js/Express API server with WebSocket support
 
----
+## Purpose
 
-## 📋 Overview
+The backend provides:
+- REST API for authentication and session management
+- WebSocket server for real-time communication
+- Session and credential management
+- Agent connection handling
+- Command routing between frontend and agent
 
-The backend package provides the API server for TRYMINT. Built with Node.js/Express, it handles authentication, session management, WebSocket connections, and serves as the bridge between the frontend and connected agents.
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                     BACKEND LAYER                        │
-├─────────────────────────────────────────────────────────┤
-│  Routes          │  HTTP route handlers                 │
-│  Controllers     │  Request/response logic              │
-│  Services        │  Business logic                      │
-│  Middleware      │  Request processing pipeline         │
-│  WebSocket       │  Real-time connection handling       │
-│  Models          │  Data structures                     │
-│  Utils           │  Helper functions                    │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 backend/
 ├── src/
-│   ├── routes/              # HTTP route definitions
-│   │   ├── auth.ts          # Authentication routes
-│   │   ├── session.ts       # Session management routes
-│   │   ├── command.ts       # Command routes
-│   │   └── index.ts         # Route aggregation
-│   ├── controllers/         # Route handlers
-│   │   ├── auth.ts          # Auth controller
-│   │   ├── session.ts       # Session controller
-│   │   └── command.ts       # Command controller
-│   ├── services/            # Business logic
-│   │   ├── auth.ts          # Authentication service
-│   │   ├── session.ts       # Session management
-│   │   ├── oauth.ts         # Google OAuth integration
-│   │   └── command.ts       # Command routing
-│   ├── middleware/          # Express middleware
-│   │   ├── auth.ts          # Authentication middleware
-│   │   ├── session.ts       # Session validation
-│   │   ├── rateLimit.ts     # Rate limiting
-│   │   ├── validation.ts    # Request validation
-│   │   ├── errorHandler.ts  # Error handling
-│   │   └── logging.ts       # Request logging
-│   ├── websocket/           # WebSocket handling
-│   │   ├── server.ts        # WebSocket server setup
-│   │   ├── handlers/        # Message handlers
-│   │   │   ├── session.ts   # Session events
-│   │   │   ├── command.ts   # Command events
-│   │   │   ├── simulation.ts# Simulation events
-│   │   │   └── terminal.ts  # Terminal events
-│   │   ├── channels/        # Channel management
-│   │   │   ├── agent.ts     # Agent connections
-│   │   │   └── client.ts    # Frontend connections
-│   │   └── protocol.ts      # Message protocol
-│   ├── models/              # Data models
-│   │   ├── user.ts          # User model
-│   │   ├── session.ts       # Session model
-│   │   └── command.ts       # Command model
-│   ├── types/               # TypeScript definitions
-│   │   ├── auth.ts          # Auth types
-│   │   ├── session.ts       # Session types
-│   │   ├── websocket.ts     # WebSocket types
-│   │   └── index.ts         # Type exports
-│   ├── utils/               # Utility functions
-│   │   ├── crypto.ts        # Cryptographic utilities
-│   │   ├── validation.ts    # Validation helpers
-│   │   ├── logger.ts        # Logging utility
-│   │   └── constants.ts     # Application constants
-│   ├── config/              # Configuration
-│   │   ├── index.ts         # Config aggregation
-│   │   ├── oauth.ts         # OAuth configuration
-│   │   ├── session.ts       # Session configuration
-│   │   └── security.ts      # Security configuration
-│   ├── app.ts               # Express app setup
-│   └── server.ts            # Server entry point
-├── package.json             # Package configuration
-├── tsconfig.json            # TypeScript configuration
-└── README.md                # This file
+│   ├── config/             # Configuration management
+│   ├── controllers/        # Request handlers
+│   ├── middleware/         # Express middleware
+│   ├── models/             # Data models
+│   ├── routes/             # Route definitions
+│   ├── services/           # Business logic
+│   ├── types/              # Type definitions
+│   ├── utils/              # Utility functions
+│   ├── websocket/          # WebSocket handlers
+│   └── index.js            # Application entry point
+├── package.json            # Package configuration
+└── README.md               # This file
 ```
 
----
+## File Map
 
-## 🔑 Key Responsibilities
+### `/src/config/`
+| File | Purpose |
+|------|---------|
+| `index.js` | Configuration aggregator |
+| `app.js` | App configuration |
+| `auth.js` | OAuth configuration |
+| `database.js` | Database configuration |
+| `session.js` | Session configuration |
+| `websocket.js` | WebSocket configuration |
 
-### Authentication
-- Handle Google OAuth flow
-- Validate OAuth tokens
-- Issue session credentials
-- Manage token refresh
-- Handle logout/teardown
+### `/src/controllers/`
+| File | Purpose |
+|------|---------|
+| `authController.js` | Authentication handlers |
+| `sessionController.js` | Session management handlers |
+| `commandController.js` | Command handling |
+| `agentController.js` | Agent management |
 
-### Session Management
-- Generate short-lived sessions
-- Track session expiration
-- Handle session refresh
-- Enforce session limits
-- Clean up expired sessions
+### `/src/middleware/`
+| File | Purpose |
+|------|---------|
+| `authenticate.js` | JWT/session verification |
+| `authorize.js` | Permission checking |
+| `validate.js` | Request validation |
+| `rateLimit.js` | Rate limiting |
+| `errorHandler.js` | Global error handler |
+| `logger.js` | Request logging |
 
-### WebSocket Gateway
-- Accept frontend connections
-- Accept agent connections
-- Route messages between parties
-- Handle connection lifecycle
-- Implement heartbeat mechanism
+### `/src/models/`
+| File | Purpose |
+|------|---------|
+| `User.js` | User data model |
+| `Session.js` | Session data model |
+| `Command.js` | Command data model |
+| `Credential.js` | Credential data model |
 
-### Command Routing
-- Receive commands from frontend
-- Forward to appropriate agent
-- Route simulation results
-- Handle approval flow
-- Stream execution output
+### `/src/routes/`
+| File | Purpose |
+|------|---------|
+| `index.js` | Route aggregator |
+| `auth.js` | Auth routes |
+| `session.js` | Session routes |
+| `command.js` | Command routes |
+| `agent.js` | Agent routes |
+| `health.js` | Health check route |
 
----
+### `/src/services/`
+| File | Purpose |
+|------|---------|
+| `authService.js` | OAuth logic |
+| `sessionService.js` | Session lifecycle |
+| `commandService.js` | Command processing |
+| `credentialService.js` | Credential management |
+| `agentService.js` | Agent communication |
 
-## 🔌 API Endpoints
+### `/src/types/`
+| File | Purpose |
+|------|---------|
+| `auth.js` | Auth types |
+| `session.js` | Session types |
+| `command.js` | Command types |
+| `websocket.js` | WebSocket types |
 
-### Authentication
-- `POST /auth/google` - Initiate Google OAuth
-- `GET /auth/google/callback` - OAuth callback
-- `POST /auth/refresh` - Refresh token
-- `POST /auth/logout` - Logout and teardown
+### `/src/utils/`
+| File | Purpose |
+|------|---------|
+| `crypto.js` | Cryptographic helpers |
+| `validators.js` | Validation helpers |
+| `errors.js` | Custom error classes |
+| `logger.js` | Logging utility |
 
-### Sessions
-- `GET /session/current` - Get current session
-- `GET /session/status` - Session status check
-- `POST /session/refresh` - Refresh session
-- `GET /session/agent-token` - Get agent credentials
+### `/src/websocket/`
+| File | Purpose |
+|------|---------|
+| `index.js` | WebSocket server setup |
+| `handlers.js` | Message handlers |
+| `channels.js` | Channel management |
+| `broadcast.js` | Broadcasting utilities |
 
-### Commands
-- `GET /commands/history` - Command history
-- `GET /commands/:id` - Specific command details
+## API Routes
 
----
+```
+POST   /auth/google          # Initiate OAuth
+GET    /auth/callback        # OAuth callback
+POST   /auth/logout          # Logout with teardown
+GET    /auth/me              # Current user info
 
-## 🔌 WebSocket Protocol
+POST   /session              # Create session
+GET    /session              # Get session status
+POST   /session/refresh      # Refresh credentials
+DELETE /session              # Terminate session
 
-### Client Events (Frontend → Backend)
-- `authenticate` - Authenticate connection
-- `command:simulate` - Request simulation
-- `command:approve` - Approve execution
-- `command:reject` - Reject execution
-- `ping` - Keepalive
+POST   /command/simulate     # Submit for simulation
+POST   /command/execute      # Execute approved command
+GET    /command/history      # Get command history
+DELETE /command/:id          # Cancel command
 
-### Agent Events (Agent → Backend)
-- `agent:authenticate` - Agent authentication
-- `simulation:result` - Simulation complete
-- `terminal:output` - Execution output
-- `agent:status` - Status update
+POST   /agent/connect        # Agent connection
+POST   /agent/heartbeat      # Agent heartbeat
+POST   /agent/disconnect     # Agent disconnect
 
-### Server Events (Backend → Clients)
-- `session:connected` - Connection confirmed
-- `session:expiring` - Expiration warning
-- `simulation:result` - Forward results
-- `terminal:output` - Forward output
-
----
-
-## 🛠️ Development
-
-```bash
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Run linting
-pnpm lint
-
-# Run type checking
-pnpm typecheck
+GET    /health               # Health check
 ```
 
----
+## WebSocket Events
 
-## 📄 Configuration
+### Server → Client
+| Event | Purpose |
+|-------|---------|
+| `session:status` | Session state updates |
+| `session:expiring` | Credential expiry warning |
+| `simulation:started` | Simulation began |
+| `simulation:result` | Simulation completed |
+| `execution:started` | Execution began |
+| `execution:output` | PTY output chunk |
+| `execution:complete` | Execution finished |
+| `agent:connected` | Agent online |
+| `agent:disconnected` | Agent offline |
 
-See `.env.example` in the root directory for required environment variables.
+### Client → Server
+| Event | Purpose |
+|-------|---------|
+| `command:submit` | Submit command |
+| `execution:cancel` | Cancel execution |
+| `session:refresh` | Refresh request |
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         Backend                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────┐    ┌──────────────┐    ┌─────────────────┐    │
+│  │ Routes  │───►│ Controllers  │───►│    Services     │    │
+│  └─────────┘    └──────────────┘    └─────────────────┘    │
+│       │                                      │              │
+│       ▼                                      ▼              │
+│  ┌─────────────┐                    ┌─────────────────┐    │
+│  │ Middleware  │                    │     Models      │    │
+│  └─────────────┘                    └─────────────────┘    │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              WebSocket Server                        │   │
+│  │  ┌─────────┐  ┌──────────┐  ┌─────────────────┐     │   │
+│  │  │Handlers │  │ Channels │  │   Broadcast     │     │   │
+│  │  └─────────┘  └──────────┘  └─────────────────┘     │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Security Responsibilities
+
+- OAuth token validation
+- Session token generation and validation
+- Short-lived credential management
+- Agent authentication
+- Rate limiting
+- Input validation
+- CORS configuration

@@ -1,18 +1,23 @@
 {
   "name": "@trymint/agent",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "TRYMINT Agent - Local CLI for command execution",
   "private": true,
+  "main": "src/index.js",
   "bin": {
-    "trymint": "./dist/cli/index.js"
+    "trymint": "./src/cli/index.js"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist node_modules"
+    "dev": "Run agent in development mode",
+    "build": "Build CLI for distribution",
+    "test": "Run tests",
+    "lint": "Lint source files",
+    "link": "Link CLI globally for development"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "Dependencies will include": "Commander, ws, node-pty, keytar, etc."
+  },
+  "devDependencies": {
+    "Dev dependencies will include": "Testing, linting tools"
+  }
 }

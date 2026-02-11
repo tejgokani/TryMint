@@ -1,54 +1,71 @@
-# Components Directory
+# Frontend Components Directory
 
-This directory contains all reusable React components organized by feature domain.
+> Reusable React components organized by feature domain
+
+## Purpose
+
+This directory contains all React components organized into feature-based subdirectories. Each subdirectory groups related components for a specific domain of the application.
 
 ## Structure
 
 ```
 components/
-├── auth/                    # Authentication components
-│   ├── LoginButton.tsx      # Google OAuth login button
-│   ├── LogoutButton.tsx     # Logout/teardown button
-│   ├── AuthGuard.tsx        # Route protection wrapper
-│   └── SessionExpiry.tsx    # Session expiration warning
-├── command/                 # Command-related components
-│   ├── CommandInput.tsx     # Command input field
-│   ├── CommandHistory.tsx   # Historical command list
-│   ├── CommandStatus.tsx    # Execution status indicator
-│   └── CommandCard.tsx      # Individual command display
-├── simulation/              # Simulation display components
-│   ├── SimulationPanel.tsx  # Main simulation container
-│   ├── SimulationDiff.tsx   # Before/after comparison
-│   ├── RiskIndicator.tsx    # Risk level display
-│   └── AffectedFiles.tsx    # Files affected listing
-├── approval/                # Approval workflow components
-│   ├── ApprovalModal.tsx    # Approval confirmation dialog
-│   ├── ApprovalButtons.tsx  # Approve/Reject buttons
-│   └── ApprovalHistory.tsx  # Past approvals listing
-├── session/                 # Session management components
-│   ├── SessionCard.tsx      # Active session display
-│   ├── SessionList.tsx      # All sessions listing
-│   ├── SessionTimer.tsx     # Time remaining display
-│   └── AgentStatus.tsx      # Connected agent status
-├── terminal/                # Terminal display components
-│   ├── TerminalWindow.tsx   # PTY output display
-│   ├── TerminalHeader.tsx   # Terminal title bar
-│   └── OutputStream.tsx     # Real-time output streaming
-└── ui/                      # Base UI components
-    ├── Button.tsx           # Button component
-    ├── Input.tsx            # Input field component
-    ├── Modal.tsx            # Modal dialog component
-    ├── Card.tsx             # Card container component
-    ├── Badge.tsx            # Status badge component
-    ├── Spinner.tsx          # Loading spinner
-    ├── Toast.tsx            # Notification toast
-    └── index.ts             # UI component exports
+├── approval/       # Command approval workflow UI
+├── auth/           # Authentication components
+├── command/        # Command input and management
+├── common/         # Shared/reusable components
+├── execution/      # Command execution display
+├── session/        # Session management UI
+└── simulation/     # Simulation preview components
 ```
 
-## Conventions
+## Subdirectory Overview
 
-- One component per file
-- Component name matches filename
-- Props interface defined in same file
-- Use TypeScript for all components
-- Export from index.ts for clean imports
+### `approval/`
+Components for the approval step in the Simulate → Approve → Execute workflow.
+- Approval dialogs
+- Diff viewers
+- Approve/Reject actions
+
+### `auth/`
+Authentication-related components.
+- Login/Logout buttons
+- OAuth callback handling
+- Route protection (AuthGuard)
+
+### `command/`
+Command input and history components.
+- Command text input
+- Command history list
+- Command queue display
+
+### `common/`
+Shared components used across features.
+- Buttons, modals, spinners
+- Layout components
+- Error boundaries
+
+### `execution/`
+Real-time execution display components.
+- Terminal output renderer
+- Execution status indicators
+- Execution logs
+
+### `session/`
+Session management UI components.
+- Session status display
+- Credential timer
+- Agent connection indicator
+
+### `simulation/`
+Simulation preview and review components.
+- Simulation output preview
+- Expected changes diff
+- Warning indicators
+
+## Component Guidelines
+
+1. **Single Responsibility** - Each component should do one thing well
+2. **Props Over State** - Prefer props for data, minimize local state
+3. **Hooks for Logic** - Extract business logic to custom hooks
+4. **Consistent Naming** - PascalCase for components, camelCase for files

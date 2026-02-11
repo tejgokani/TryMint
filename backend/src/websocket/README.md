@@ -1,100 +1,82 @@
-# WebSocket Directory
+# Backend WebSocket
 
-This directory contains WebSocket server implementation.
+> WebSocket server for real-time communication
 
-## Structure
+## Purpose
 
-```
-websocket/
-├── server.ts            # WebSocket server setup
-├── handlers/            # Message handlers
-│   ├── session.ts       # Session event handlers
-│   ├── command.ts       # Command event handlers
-│   ├── simulation.ts    # Simulation event handlers
-│   ├── terminal.ts      # Terminal event handlers
-│   └── index.ts         # Handler exports
-├── channels/            # Channel management
-│   ├── agent.ts         # Agent channel
-│   ├── client.ts        # Frontend client channel
-│   └── index.ts         # Channel exports
-├── protocol.ts          # Message protocol
-└── README.md            # This file
-```
+Manages WebSocket connections for real-time communication between the backend, frontend clients, and agents. Handles message routing, broadcasting, and connection lifecycle.
 
-## Component Descriptions
+## File Map
 
-### server.ts
-WebSocket server setup and lifecycle.
+| File | Purpose |
+|------|---------|
+| `index.js` | WebSocket server setup and initialization |
+| `handlers.js` | Message type handlers |
+| `channels.js` | Channel/room management |
+| `broadcast.js` | Broadcasting utilities |
+| `auth.js` | WebSocket authentication |
+| `types.js` | Message type definitions |
 
-**Responsibilities:**
-- Create WebSocket server
-- Handle connection upgrade
-- Manage connection lifecycle
-- Implement heartbeat/ping-pong
+## Server Setup (index.js)
+
+- Initialize WebSocket server
+- Attach to HTTP server
+- Configure ping/pong heartbeat
+- Handle connection events
 - Route messages to handlers
-- Handle disconnection
 
-### handlers/
+## Message Handlers (handlers.js)
 
-#### session.ts
-Session-related event handlers.
+| Handler | Message Type | Purpose |
+|---------|--------------|---------|
+| `handleCommandSubmit` | `command:submit` | New command from client |
+| `handleExecutionCancel` | `execution:cancel` | Cancel request |
+| `handleSessionRefresh` | `session:refresh` | Refresh credentials |
+| `handleAgentResponse` | `agent:response` | Response from agent |
+| `handleAgentOutput` | `agent:output` | PTY output from agent |
 
-**Events:**
-- `authenticate` - Handle authentication
-- `session:refresh` - Handle session refresh
-- `session:teardown` - Handle logout teardown
+## Channels (channels.js)
 
-#### command.ts
-Command-related event handlers.
+| Channel | Subscribers | Purpose |
+|---------|-------------|---------|
+| `session:{id}` | Frontend client | Session-specific updates |
+| `agent:{id}` | Single agent | Agent-specific messages |
+| `user:{id}` | All user clients | User-level broadcasts |
 
-**Events:**
-- `command:simulate` - Forward to agent
-- `command:approve` - Forward approval
-- `command:reject` - Forward rejection
-- `command:cancel` - Cancel execution
+## Broadcasting (broadcast.js)
 
-#### simulation.ts
-Simulation event handlers.
+| Function | Purpose |
+|----------|---------|
+| `toSession(sessionId, event, data)` | Send to session |
+| `toAgent(agentId, event, data)` | Send to agent |
+| `toUser(userId, event, data)` | Send to all user clients |
+| `toAll(event, data)` | Broadcast to all |
 
-**Events:**
-- `simulation:result` - Forward to client
-- `simulation:error` - Forward error
-- `simulation:progress` - Forward progress
+## Message Flow
 
-#### terminal.ts
-Terminal output handlers.
+```
+Frontend                 Backend                    Agent
+   │                        │                         │
+   │─── command:submit ────►│                         │
+   │                        │─── agent:simulate ─────►│
+   │                        │                         │
+   │                        │◄── agent:simResult ─────│
+   │◄── simulation:result ──│                         │
+   │                        │                         │
+   │─── command:approve ───►│                         │
+   │                        │─── agent:execute ──────►│
+   │                        │                         │
+   │                        │◄── agent:output ────────│
+   │◄── execution:output ───│                         │
+   │                        │                         │
+   │                        │◄── agent:complete ──────│
+   │◄── execution:complete ─│                         │
+```
 
-**Events:**
-- `terminal:output` - Forward PTY output
-- `terminal:resize` - Handle resize
-- `terminal:clear` - Clear terminal
+## Authentication (auth.js)
 
-### channels/
-
-#### agent.ts
-Agent connection management.
-
-**Responsibilities:**
-- Track connected agents
-- Route messages to agents
-- Handle agent authentication
-- Monitor agent health
-- Handle agent disconnection
-
-#### client.ts
-Frontend client management.
-
-**Responsibilities:**
-- Track connected clients
-- Route messages to clients
-- Bind clients to sessions
-- Handle client disconnection
-
-### protocol.ts
-Message protocol definition.
-
-**Responsibilities:**
-- Define message format
-- Message serialization
-- Message validation
-- Error message format
+- Validate connection token
+- Extract session from handshake
+- Bind connection to session
+- Handle token refresh
+- Clean up on disconnect

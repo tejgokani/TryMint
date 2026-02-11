@@ -1,80 +1,118 @@
-# Simulation Directory
+# Agent Simulation
 
-This directory contains the command simulation engine.
+> Command simulation and effect prediction
 
-## Structure
+## Purpose
+
+Simulates commands without executing them. Parses commands, predicts effects, validates safety, and returns simulation results for user approval.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Simulation coordinator |
+| `parser.js` | Command parser |
+| `predictor.js` | Effect prediction |
+| `validator.js` | Safety validation |
+
+## Simulation Flow
 
 ```
-simulation/
-├── engine.ts            # Simulation engine
-├── sandbox.ts           # Sandbox environment
-├── analyzer.ts          # Command analyzer
-└── risk.ts              # Risk assessment
+Command Input
+      │
+      ▼
+┌──────────┐
+│  Parser  │ → Parse command structure
+└──────────┘
+      │
+      ▼
+┌──────────┐
+│ Predictor│ → Predict file/system effects
+└──────────┘
+      │
+      ▼
+┌──────────┐
+│ Validator│ → Check safety and capabilities
+└──────────┘
+      │
+      ▼
+Simulation Result
 ```
 
-## Component Descriptions
+## Command Parser (parser.js)
 
-### engine.ts
-Core simulation engine.
+| Function | Purpose |
+|----------|---------|
+| `parse(command)` | Parse command into AST |
+| `extractCommand(parsed)` | Get primary command |
+| `extractArgs(parsed)` | Get arguments |
+| `extractPaths(parsed)` | Get file paths |
+| `detectPipes(parsed)` | Find piped commands |
+| `detectRedirects(parsed)` | Find redirections |
 
-**Responsibilities:**
-- Coordinate simulation process
-- Manage sandbox lifecycle
-- Collect simulation results
-- Generate simulation report
+## Effect Predictor (predictor.js)
 
-**Flow:**
-1. Parse command
-2. Create sandbox environment
-3. Analyze command impact
-4. Execute in sandbox (dry-run)
-5. Collect changes
-6. Assess risk
-7. Generate report
+| Function | Purpose |
+|----------|---------|
+| `predict(parsed)` | Predict all effects |
+| `predictFileChanges(parsed)` | Predict file modifications |
+| `predictCreations(parsed)` | Predict file creations |
+| `predictDeletions(parsed)` | Predict file deletions |
+| `predictPermissionChanges(parsed)` | Predict permission changes |
 
-### sandbox.ts
-Sandbox environment.
+### Prediction Categories
 
-**Responsibilities:**
-- Create isolated environment
-- Mount filesystem overlay
-- Capture filesystem changes
-- Track resource access
-- Clean up after simulation
+| Category | Examples |
+|----------|----------|
+| FILE_READ | cat, less, head |
+| FILE_WRITE | echo >, tee |
+| FILE_CREATE | touch, mkdir |
+| FILE_DELETE | rm, rmdir |
+| FILE_MOVE | mv |
+| FILE_COPY | cp |
+| PERMISSION_CHANGE | chmod, chown |
+| NETWORK | curl, wget |
+| PROCESS | kill, pkill |
 
-**Isolation:**
-- Filesystem overlay
-- Environment isolation
-- Network restrictions
-- Resource limits
+## Safety Validator (validator.js)
 
-### analyzer.ts
-Command analyzer.
+| Function | Purpose |
+|----------|---------|
+| `validate(parsed, capabilities)` | Full validation |
+| `checkCapabilities(paths, caps)` | Capability check |
+| `checkDangerousPatterns(command)` | Pattern check |
+| `calculateRiskLevel(parsed)` | Risk assessment |
+| `generateWarnings(parsed)` | Generate warnings |
 
-**Responsibilities:**
-- Parse command syntax
-- Identify command type
-- Detect dangerous operations
-- List affected resources
-- Identify side effects
+### Risk Levels
 
-**Analysis:**
-- File operations
-- Network operations
-- System operations
-- Destructive operations
+| Level | Criteria |
+|-------|----------|
+| LOW | Read-only operations |
+| MEDIUM | File modifications in allowed dirs |
+| HIGH | Deletions, permission changes |
+| CRITICAL | System commands, network access |
 
-### risk.ts
-Risk assessment.
+## Simulation Result
 
-**Responsibilities:**
-- Calculate risk score
-- Categorize risk level
-- Generate risk warnings
-- Recommend actions
+```
+SimulationResult {
+  success: boolean
+  command: string
+  parsed: ParsedCommand
+  effects: Effect[]
+  warnings: Warning[]
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+  violations: Violation[]
+  canExecute: boolean
+}
+```
 
-**Risk Levels:**
-- `LOW` - Safe operations
-- `MEDIUM` - Caution advised
-- `HIGH` - Significant impact
-- `CRITICAL` - Dangerous operation
+## Dangerous Pattern Detection
+
+- `rm -rf /`
+- `chmod 777`
+- `:(){:|:&};:` (fork bomb)
+- `> /dev/sda`
+- `dd if=/dev/zero`
+- Command substitution with dangerous commands

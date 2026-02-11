@@ -1,15 +1,19 @@
 {
   "name": "@trymint/frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "TRYMINT Frontend - React Web Application",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next out node_modules"
+    "dev": "Start development server",
+    "build": "Build for production",
+    "test": "Run tests",
+    "lint": "Lint source files",
+    "preview": "Preview production build"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "Dependencies will include": "React, Redux, WebSocket client, etc."
+  },
+  "devDependencies": {
+    "Dev dependencies will include": "Testing, linting, build tools"
+  }
 }

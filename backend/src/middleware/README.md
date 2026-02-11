@@ -1,80 +1,77 @@
-# Middleware Directory
+# Backend Middleware
 
-This directory contains Express middleware functions.
+> Express middleware functions
 
-## Structure
+## Purpose
+
+Middleware functions that process requests before they reach controllers. Handle cross-cutting concerns like authentication, validation, logging, and error handling.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `authenticate.js` | JWT/session token verification |
+| `authorize.js` | Permission and role checking |
+| `validate.js` | Request body/params validation |
+| `rateLimit.js` | Rate limiting per client |
+| `errorHandler.js` | Global error handling |
+| `logger.js` | Request/response logging |
+| `cors.js` | CORS configuration |
+| `index.js` | Barrel export |
+
+## Middleware Details
+
+### authenticate.js
+- Extract token from header/cookie
+- Verify token signature
+- Attach user to request
+- Reject invalid tokens
+
+### authorize.js
+- Check user permissions
+- Verify session ownership
+- Validate agent binding
+
+### validate.js
+- Schema-based validation
+- Request body validation
+- Query param validation
+- Path param validation
+- Return 400 on failure
+
+### rateLimit.js
+- Per-IP rate limiting
+- Per-user rate limiting
+- Configurable windows
+- 429 response on exceed
+
+### errorHandler.js
+- Catch all errors
+- Format error response
+- Log errors
+- Hide stack in production
+
+### logger.js
+- Log request method/path
+- Log response status
+- Log timing
+- Log errors
+
+### cors.js
+- Configure allowed origins
+- Configure allowed methods
+- Configure allowed headers
+- Handle preflight
+
+## Middleware Order
 
 ```
-middleware/
-├── auth.ts              # Authentication middleware
-├── session.ts           # Session validation
-├── rateLimit.ts         # Rate limiting
-├── validation.ts        # Request validation
-├── errorHandler.ts      # Error handling
-├── logging.ts           # Request logging
-├── cors.ts              # CORS configuration
-├── security.ts          # Security headers
-└── index.ts             # Middleware exports
+1. logger
+2. cors
+3. rateLimit
+4. authenticate (on protected routes)
+5. validate (on routes with body)
+6. authorize (on restricted routes)
+7. controller
+8. errorHandler (catch-all)
 ```
-
-## Middleware Descriptions
-
-### auth.ts
-Authentication verification.
-
-**Functions:**
-- `requireAuth()` - Require valid token
-- `optionalAuth()` - Optional authentication
-- `extractToken()` - Extract token from header
-
-### session.ts
-Session validation.
-
-**Functions:**
-- `requireSession()` - Require active session
-- `validateSessionToken()` - Validate session token
-- `checkSessionExpiry()` - Check expiration
-
-### rateLimit.ts
-Rate limiting protection.
-
-**Functions:**
-- `apiRateLimit()` - API rate limiting
-- `authRateLimit()` - Auth endpoint limiting
-- `wsRateLimit()` - WebSocket rate limiting
-
-### validation.ts
-Request validation.
-
-**Functions:**
-- `validateBody()` - Validate request body
-- `validateParams()` - Validate URL params
-- `validateQuery()` - Validate query string
-
-### errorHandler.ts
-Error handling.
-
-**Functions:**
-- `errorHandler()` - Global error handler
-- `notFoundHandler()` - 404 handler
-- `asyncHandler()` - Async error wrapper
-
-### logging.ts
-Request logging.
-
-**Functions:**
-- `requestLogger()` - Log incoming requests
-- `responseLogger()` - Log responses
-
-### cors.ts
-CORS configuration.
-
-**Functions:**
-- `corsMiddleware()` - CORS headers
-
-### security.ts
-Security headers.
-
-**Functions:**
-- `securityHeaders()` - Set security headers
-- `contentSecurityPolicy()` - CSP headers

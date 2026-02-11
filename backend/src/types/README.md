@@ -1,54 +1,66 @@
-# Types Directory
+# Backend Types
 
-This directory contains TypeScript type definitions.
+> Type definitions for backend
 
-## Structure
+## Purpose
 
+Type definitions using JSDoc for JavaScript. Provides IDE support and documentation for data structures.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `auth.js` | Authentication types |
+| `session.js` | Session types |
+| `command.js` | Command types |
+| `websocket.js` | WebSocket message types |
+| `api.js` | API request/response types |
+| `index.js` | Barrel export |
+
+## Type Definitions
+
+### auth.js
+- `OAuthConfig`
+- `OAuthTokens`
+- `JWTPayload`
+- `AuthenticatedUser`
+
+### session.js
+- `Session`
+- `SessionStatus` (enum)
+- `SessionCreateParams`
+- `SessionRefreshResult`
+
+### command.js
+- `Command`
+- `CommandStatus` (enum)
+- `SimulationResult`
+- `ExecutionResult`
+
+### websocket.js
+- `WebSocketMessage`
+- `ClientMessage`
+- `ServerMessage`
+- `MessageType` (enum)
+
+### api.js
+- `ApiRequest`
+- `ApiResponse`
+- `ApiError`
+- `ValidationError`
+
+## JSDoc Pattern
+
+```javascript
+/**
+ * @typedef {Object} Session
+ * @property {string} id
+ * @property {string} userId
+ * @property {SessionStatus} status
+ * @property {Date} expiresAt
+ */
+
+/**
+ * @typedef {'active'|'expired'|'terminated'} SessionStatus
+ */
 ```
-types/
-├── auth.ts              # Authentication types
-├── session.ts           # Session types
-├── command.ts           # Command types
-├── websocket.ts         # WebSocket types
-├── agent.ts             # Agent types
-├── api.ts               # API types
-└── index.ts             # Type exports
-```
-
-## Type Categories
-
-### auth.ts
-- `AuthToken` - JWT token structure
-- `TokenPayload` - Token payload
-- `OAuthTokens` - OAuth token pair
-- `GoogleProfile` - Google user profile
-- `AuthResult` - Authentication result
-
-### session.ts
-- `Session` - Session object
-- `SessionConfig` - Session configuration
-- `SessionCapabilities` - Allowed operations
-- `SessionStatus` - Status enumeration
-
-### command.ts
-- `Command` - Command object
-- `CommandStatus` - Status enumeration
-- `CommandResult` - Execution result
-- `SimulationResult` - Simulation output
-
-### websocket.ts
-- `WSMessage` - Base message type
-- `WSEvent` - Event enumeration
-- `WSConnection` - Connection metadata
-- `WSError` - Error message
-
-### agent.ts
-- `Agent` - Agent metadata
-- `AgentCredentials` - Agent auth
-- `AgentCapabilities` - Agent capabilities
-- `AgentStatus` - Status enumeration
-
-### api.ts
-- `ApiResponse` - Standard response
-- `ApiError` - Error response
-- `PaginatedResponse` - Paginated data

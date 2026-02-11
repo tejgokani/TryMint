@@ -1,65 +1,65 @@
 # Types Directory
 
-This directory contains TypeScript type definitions and interfaces.
+> Type definitions and schemas
 
-## Structure
+## Purpose
 
+This directory contains type definitions, interfaces, and schemas used throughout the frontend application.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `auth.js` | Authentication-related types |
+| `session.js` | Session-related types |
+| `command.js` | Command-related types |
+| `websocket.js` | WebSocket message types |
+| `api.js` | API request/response types |
+| `index.js` | Barrel export for all types |
+
+## Type Definitions
+
+### auth.js
+- User
+- AuthState
+- LoginCredentials
+- OAuthResponse
+
+### session.js
+- Session
+- SessionState
+- SessionCredentials
+- SessionStatus
+
+### command.js
+- Command
+- CommandStatus
+- CommandResult
+- CommandHistoryItem
+
+### websocket.js
+- WebSocketMessage
+- WebSocketEvent
+- SimulationMessage
+- ExecutionMessage
+- SessionMessage
+
+### api.js
+- ApiResponse
+- ApiError
+- PaginatedResponse
+- RequestConfig
+
+## JSDoc Pattern
+
+Types are documented using JSDoc for IDE support:
+
+```javascript
+/**
+ * @typedef {Object} User
+ * @property {string} id
+ * @property {string} email
+ * @property {string} name
+ * @property {string} picture
+ */
 ```
-types/
-├── auth.ts              # Authentication types
-├── session.ts           # Session types
-├── command.ts           # Command types
-├── simulation.ts        # Simulation types
-├── websocket.ts         # WebSocket message types
-├── api.ts               # API request/response types
-└── index.ts             # Type exports
-```
-
-## Type Categories
-
-### auth.ts
-Authentication and user type definitions.
-
-- `User` - User profile interface
-- `AuthState` - Authentication state
-- `OAuthResponse` - OAuth callback data
-- `TokenPair` - Access/refresh tokens
-- `LoginRequest` - Login parameters
-- `LogoutRequest` - Logout parameters
-
-### session.ts
-Session management types.
-
-- `Session` - Session object
-- `SessionCredentials` - Agent credentials
-- `SessionCapabilities` - Allowed operations
-- `SessionStatus` - Status enumeration
-- `SessionConfig` - Session configuration
-
-### command.ts
-Command execution types.
-
-- `Command` - Command object
-- `CommandStatus` - Execution status enum
-- `CommandResult` - Execution result
-- `CommandHistory` - History entry
-- `CommandInput` - Input parameters
-
-### simulation.ts
-Simulation types.
-
-- `SimulationResult` - Result object
-- `SimulationStatus` - Status enumeration
-- `RiskLevel` - Risk assessment enum
-- `AffectedResource` - Resource impact
-- `SimulationDiff` - Before/after diff
-
-### websocket.ts
-WebSocket protocol types.
-
-- `WSMessage` - Base message type
-- `WSEvent` - Event type enumeration
-- `SessionMessage` - Session events
-- `CommandMessage` - Command events
-- `SimulationMessage` - Simulation events
-- `TerminalMessage` - Terminal output

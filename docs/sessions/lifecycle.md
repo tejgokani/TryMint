@@ -1,183 +1,120 @@
 # Session Lifecycle
 
-> Session State Machine Documentation
+> Complete session lifecycle documentation
 
----
-
-## 📋 Overview
-
-This document describes the session lifecycle from creation to teardown.
-
----
-
-## 🔄 Session States
+## Session Flow
 
 ```
-┌─────────────────┐
-│   NONE          │ No session exists
-└────────┬────────┘
-         │ User authenticates
-         ▼
-┌─────────────────┐
-│   CREATED       │ Session created, token issued
-└────────┬────────┘
-         │ Agent connects
-         ▼
-┌─────────────────┐
-│   ACTIVE        │ Full functionality available
-└────────┬────────┘
-         │
-    ┌────┼────┐
-    │         │
-    ▼         ▼
-┌────────┐ ┌─────────────────┐
-│EXPIRING│ │   REFRESHED     │
-└────┬───┘ └────────┬────────┘
-     │              │
-     │    ┌─────────┘
-     │    │
-     ▼    ▼
-┌─────────────────┐
-│   EXPIRED       │ Session timeout (no refresh)
-└─────────────────┘
-         
-┌─────────────────┐
-│   TERMINATED    │ User logout or forced teardown
-└─────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SESSION LIFECYCLE                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  1. USER LOGIN (Google OAuth)                                               │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌─────────────┐                                                            │
+│  │  Frontend   │──── OAuth Redirect ────►  Google                          │
+│  └─────────────┘◄─── Auth Code ──────────────┘                             │
+│         │                                                                   │
+│         │ Auth Code                                                         │
+│         ▼                                                                   │
+│  ┌─────────────┐                                                            │
+│  │   Backend   │──── Exchange Code ─────►  Google                          │
+│  └─────────────┘◄─── Access Token ───────────┘                             │
+│         │                                                                   │
+│         │ Session Created                                                   │
+│         ▼                                                                   │
+│  2. SESSION ACTIVE                                                          │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌─────────────┐    Session Token    ┌─────────────┐                       │
+│  │  Frontend   │◄───────────────────►│   Backend   │                       │
+│  └─────────────┘                     └─────────────┘                       │
+│         │                                   │                               │
+│         │ User connects agent               │                               │
+│         ▼                                   ▼                               │
+│  3. AGENT BINDING                                                           │
+│                                                                             │
+│  ┌─────────────┐    trymint connect  ┌─────────────┐                       │
+│  │    Agent    │─────────────────────►│   Backend   │                       │
+│  └─────────────┘◄────────────────────└─────────────┘                       │
+│         │         Credentials +                                             │
+│         │         Capabilities                                              │
+│         │                                                                   │
+│  4. COMMAND WORKFLOW                                                        │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                                                                     │   │
+│  │   SIMULATE ───► PREVIEW ───► APPROVE ───► EXECUTE ───► COMPLETE    │   │
+│  │                                                                     │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  5. SESSION END                                                             │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌─────────────┐                                                            │
+│  │   Logout    │                                                            │
+│  └─────────────┘                                                            │
+│         │                                                                   │
+│         ├──── Revoke Credentials                                            │
+│         ├──── Disconnect Agent                                              │
+│         ├──── Clear Session                                                 │
+│         └──── Redirect to Login                                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
----
+## Session States
 
-## 📊 State Descriptions
+| State | Description |
+|-------|-------------|
+| `CREATED` | Session initialized, awaiting agent |
+| `ACTIVE` | Agent connected, ready for commands |
+| `EXPIRING` | Credentials near expiry, refresh available |
+| `EXPIRED` | Session timed out, re-auth required |
+| `TERMINATED` | User logged out, cleanup complete |
 
-| State | Description | Allowed Operations |
-|-------|-------------|-------------------|
-| NONE | No active session | Login only |
-| CREATED | Session created, awaiting agent | View session, connect agent |
-| ACTIVE | Fully operational | All operations |
-| EXPIRING | Approaching expiry | All operations + refresh |
-| REFRESHED | Recently refreshed | All operations |
-| EXPIRED | Session timed out | Login only |
-| TERMINATED | Explicitly ended | Login only |
-
----
-
-## ⏱️ Timing Configuration
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| SESSION_TTL | 3600s | Session lifetime |
-| EXPIRY_WARNING | 300s | Warning before expiry |
-| REFRESH_WINDOW | 600s | Time window for refresh |
-| GRACE_PERIOD | 30s | Grace period after expiry |
-
----
-
-## 🔄 State Transitions
-
-### Login → CREATED
-
-**Trigger**: Successful OAuth authentication
-
-**Actions**:
-1. Validate OAuth tokens
-2. Create session record
-3. Generate session token
-4. Set expiration time
-5. Return token to client
-
-### CREATED → ACTIVE
-
-**Trigger**: Agent successfully connects
-
-**Actions**:
-1. Validate agent credentials
-2. Bind agent to session
-3. Mark session as active
-4. Notify frontend
-
-### ACTIVE → EXPIRING
-
-**Trigger**: Expiry warning threshold reached
-
-**Actions**:
-1. Send expiry warning to frontend
-2. Allow refresh request
-3. Continue normal operations
-
-### EXPIRING → REFRESHED
-
-**Trigger**: User/system requests refresh
-
-**Actions**:
-1. Validate current session
-2. Extend expiration time
-3. Issue new token (optional)
-4. Reset warning state
-
-### EXPIRING → EXPIRED
-
-**Trigger**: Expiration time reached without refresh
-
-**Actions**:
-1. Invalidate session token
-2. Disconnect agent
-3. Clear credentials
-4. Notify frontend
-
-### ACTIVE → TERMINATED
-
-**Trigger**: User logout
-
-**Actions**:
-1. Send teardown to agent
-2. Wait for agent acknowledgment
-3. Revoke all tokens
-4. Clear all credentials
-5. Mark session terminated
-
----
-
-## 🚪 Teardown Process
-
-### Normal Logout
+## Credential Lifecycle
 
 ```
-1. User clicks logout
-2. Frontend sends logout request
-3. Backend initiates teardown
-4. Backend sends teardown to agent
-5. Agent clears credentials
-6. Agent closes connection
-7. Backend revokes tokens
-8. Backend clears session
-9. Frontend clears storage
-10. Frontend redirects to login
+Generate ───► Active ───► Expiring ───► Expired
+                │              │
+                │   Refresh    │
+                └──────────────┘
 ```
 
-### Forced Teardown
+- **TTL**: 15 minutes
+- **Refresh Window**: Last 5 minutes before expiry
+- **Auto-refresh**: Agent can request refresh
+- **Revocation**: Immediate on logout
 
-```
-1. Admin or system triggers teardown
-2. Backend sends immediate teardown
-3. Agent force-clears credentials
-4. All connections closed
-5. Session marked terminated
-```
+## Mandatory Teardown
 
-### Expiry Teardown
+When a session ends (logout or expiry):
 
-```
-1. Session expires
-2. Backend marks expired
-3. Next request triggers cleanup
-4. Agent connection closed
-5. Credentials invalidated
-```
+1. **Backend**
+   - Invalidate session token
+   - Revoke all credentials
+   - Send terminate message to agent
+   - Clear session data
 
----
+2. **Frontend**
+   - Clear local state
+   - Close WebSocket
+   - Redirect to login
 
-## 🔗 Related Documents
+3. **Agent**
+   - Kill running processes
+   - Clear stored credentials
+   - Close WebSocket
+   - Exit cleanly
 
-- [Credential Management](../security/credentials.md)
-- [Session Endpoints](../api/sessions.md)
+## Timeout Values
+
+| Timeout | Value | Description |
+|---------|-------|-------------|
+| Session | 2 hours | Maximum session duration |
+| Credential | 15 min | Credential validity |
+| Idle | 30 min | Inactivity timeout |
+| Agent Heartbeat | 60 sec | Agent liveness check |

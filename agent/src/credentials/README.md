@@ -1,68 +1,77 @@
-# Credentials Directory
+# Agent Credentials
 
-This directory contains credential management.
+> Credential management and storage
 
-## Structure
+## Purpose
+
+Manages short-lived session credentials. Handles secure storage, validation, refresh, and cleanup of credentials.
+
+## File Map
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Credential manager class |
+| `store.js` | Secure credential storage |
+| `refresh.js` | Credential refresh logic |
+| `validate.js` | Credential validation |
+
+## Credential Structure
 
 ```
-credentials/
-├── store.ts             # Credential storage
-├── secure.ts            # Secure storage
-└── refresh.ts           # Credential refresh
+Credential {
+  token: string           # Short-lived access token
+  sessionId: string       # Bound session ID
+  capabilities: string[]  # Allowed directory paths
+  expiresAt: timestamp    # Expiration time
+  issuedAt: timestamp     # Issue time
+}
 ```
 
-## Component Descriptions
+## Storage Options
 
-### store.ts
-Credential storage management.
+### store.js
 
-**Responsibilities:**
-- Store credentials
-- Retrieve credentials
-- Delete credentials
-- Check credential validity
-- Handle storage errors
+| Method | Purpose |
+|--------|---------|
+| `save(credential)` | Store credential securely |
+| `load()` | Load stored credential |
+| `clear()` | Remove stored credential |
+| `exists()` | Check if credential exists |
 
-**Storage Location:**
-- Default: `~/.trymint/credentials`
-- Configurable via environment
+Storage backends:
+- **OS Keychain** (preferred) - macOS Keychain, Windows Credential Manager
+- **Encrypted file** (fallback) - AES-256 encrypted file
 
-**Stored Data:**
-- Session token
-- Agent credentials
-- Expiration timestamp
-- Session metadata
+## Validation
 
-### secure.ts
-Secure credential storage.
+### validate.js
 
-**Responsibilities:**
-- Encrypt credentials at rest
-- Decrypt credentials on read
-- Manage encryption keys
-- Handle key rotation
-- Secure deletion
+| Function | Purpose |
+|----------|---------|
+| `isValid(credential)` | Check if credential is valid |
+| `isExpired(credential)` | Check expiration |
+| `isExpiringSoon(credential)` | Check if expiring within threshold |
+| `matchesSession(credential, sessionId)` | Verify session binding |
 
-**Security Measures:**
-- File permissions (0600)
-- Encryption at rest
-- Memory wiping
-- Secure deletion
+## Refresh Logic
 
-### refresh.ts
-Credential refresh logic.
+### refresh.js
 
-**Responsibilities:**
-- Monitor credential expiry
-- Request credential refresh
-- Update stored credentials
-- Handle refresh failures
-- Notify on refresh
+| Function | Purpose |
+|----------|---------|
+| `shouldRefresh(credential)` | Determine if refresh needed |
+| `refresh(connection)` | Request new credential from backend |
+| `handleRefreshResponse(response)` | Process refresh response |
 
-**Refresh Flow:**
-1. Monitor expiry time
-2. Trigger refresh before expiry
-3. Request new credentials
-4. Validate new credentials
-5. Update storage
-6. Notify success/failure
+Refresh triggers:
+- Less than 5 minutes until expiry
+- Backend requests refresh
+- Manual refresh request
+
+## Security Considerations
+
+- Credentials never logged or printed
+- Stored encrypted at rest
+- Memory cleared after use
+- Auto-clear on session end
+- No credential caching beyond session

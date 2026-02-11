@@ -1,15 +1,20 @@
 {
   "name": "@trymint/backend",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "TRYMINT Backend - Node.js API Server",
   "private": true,
+  "main": "src/index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist node_modules"
+    "dev": "Start development server with hot reload",
+    "start": "Start production server",
+    "build": "Build for production (if using TypeScript)",
+    "test": "Run tests",
+    "lint": "Lint source files"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "Dependencies will include": "Express, ws, JWT, OAuth libs, etc."
+  },
+  "devDependencies": {
+    "Dev dependencies will include": "Testing, linting, nodemon"
+  }
 }

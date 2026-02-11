@@ -1,68 +1,71 @@
 # Dependencies
 node_modules/
-.pnpm-store/
+.pnp/
+.pnp.js
 
 # Build outputs
 dist/
 build/
-.next/
 out/
+.next/
 
 # Environment files
 .env
 .env.local
-.env.*.local
-.env.development
-.env.production
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS files
-.DS_Store
-Thumbs.db
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
 
 # Logs
 logs/
 *.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
 # Testing
 coverage/
 .nyc_output/
 
-# TypeScript
-*.tsbuildinfo
-
 # Temporary files
 tmp/
 temp/
-.tmp/
-.temp/
+*.tmp
 
-# Agent specific
-agent/.credentials/
-agent/.session/
-agent/pty-sessions/
-
-# Backend specific
-backend/sessions/
-backend/uploads/
-
-# Secrets (never commit)
+# Credentials (NEVER commit)
 *.pem
 *.key
 *.crt
+credentials/
 secrets/
-.secrets/
 
-# Lock files (keep pnpm-lock.yaml)
-package-lock.json
-yarn.lock
+# Agent specific
+agent/.trymint/
+agent/session/
+
+# Frontend specific
+frontend/.cache/
+
+# Backend specific
+backend/uploads/
+backend/sessions/
+
+# Documentation build
+docs/_build/
+docs/.docusaurus/
