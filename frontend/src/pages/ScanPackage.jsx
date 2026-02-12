@@ -16,7 +16,6 @@ export default function ScanPackage() {
   const { showError, showSuccess } = useToast()
   const [packageInput, setPackageInput] = useState('')
   const [isScanning, setIsScanning] = useState(false)
-  const [aiSummary, setAiSummary] = useState(false)
   const [result, setResult] = useState(null)
   const [backendDown, setBackendDown] = useState(false)
   const [backendCheckDone, setBackendCheckDone] = useState(false)
@@ -56,7 +55,7 @@ export default function ScanPackage() {
     if (overridePackage) setPackageInput(overridePackage)
 
     try {
-      const res = await api.scanPackage(spec, { aiSummary })
+      const res = await api.scanPackage(spec)
       if (res?.success && res?.data) {
         setResult(res.data)
         showSuccess('Scan complete')
@@ -143,20 +142,6 @@ export default function ScanPackage() {
               )}
             </button>
           </form>
-
-          <label className="flex items-center justify-center gap-2 mt-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={aiSummary}
-              onChange={(e) => setAiSummary(e.target.checked)}
-              disabled={isScanning}
-              className="rounded border-gray-600 bg-[#111827] text-[#00ff88] focus:ring-[#00ff88]/50"
-            />
-            <span className="text-sm text-gray-400">
-              Get AI summary
-              <span className="text-gray-500 ml-1">(60–80 words, uses OpenAI)</span>
-            </span>
-          </label>
 
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             <span className="text-sm text-gray-500 self-center">Quick scan:</span>

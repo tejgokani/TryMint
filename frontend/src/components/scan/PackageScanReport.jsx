@@ -80,8 +80,6 @@ export default function PackageScanReport({ result }) {
     networkRisk = 0,
     behavioralRisk = 0,
     trymintInsight = '',
-    aiSummaryUsed,
-    aiSummaryError,
     triggers = [],
     analysisSteps = [],
     effects = [],
@@ -227,14 +225,8 @@ export default function PackageScanReport({ result }) {
         </div>
         {trymintInsight && (
           <div className="p-2.5 rounded-lg bg-[#0a0f1a] border border-[#1f2937]">
-            <div className="text-[10px] text-gray-500 mb-1 flex items-center gap-1.5">
-              TRYMINT Insight
-              {aiSummaryUsed && <span className="text-[#00ff88]">(AI)</span>}
-            </div>
+            <div className="text-[10px] text-gray-500 mb-1">TRYMINT Insight</div>
             <p className="text-xs text-gray-300 italic leading-relaxed">&quot;{trymintInsight}&quot;</p>
-            {aiSummaryError && (
-              <p className="text-[10px] text-amber-400 mt-1.5">⚠ {aiSummaryError}</p>
-            )}
           </div>
         )}
       </div>
