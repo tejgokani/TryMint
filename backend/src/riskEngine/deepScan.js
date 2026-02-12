@@ -20,7 +20,7 @@ const DESTRUCTIVE_PATTERNS = [
   { pattern: /\bfs\.(writeFile|writeFileSync|appendFile|appendFileSync)\s*\(/i, severity: 4, name: 'File write' },
   { pattern: /\brm\s+-rf|\brm\s+-r\s+-f|\brmdir\s+/i, severity: 10, name: 'Shell delete' },
   { pattern: /\bchild_process\.(exec|execSync|spawn)\s*\([^)]*rm\s+/i, severity: 9, name: 'Exec with rm' },
-  { pattern: /\bmkfs\.|format\s+/i, severity: 10, name: 'Disk format' },
+  { pattern: /\bmkfs\.|format\s+(fs|disk|drive)\b/i, severity: 10, name: 'Disk format' },
   { pattern: /\bdd\s+if=/i, severity: 10, name: 'Raw disk write' },
   { pattern: /\bchmod\s+-R|\bchown\s+-R/i, severity: 7, name: 'Recursive permission change' },
 ];

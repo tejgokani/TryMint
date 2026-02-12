@@ -280,7 +280,7 @@ export function SandboxProvider({ children, session }) {
           const findings = report.findings || []
           setWarnings(findings.map((f) => ({
             type: f.severity === 'critical' ? 'critical' : f.severity === 'high' ? 'warning' : 'info',
-            message: f.title ? `${f.title}${f.location ? ` (${f.location})` : ''}` : f.description,
+            message: f.title || f.description || 'Finding',
             category: f.category,
             location: f.location,
           })))

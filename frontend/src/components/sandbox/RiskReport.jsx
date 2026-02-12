@@ -126,13 +126,26 @@ export default function RiskReport() {
         {/* TRYMINT breakdown (when from postmortem deep scan) */}
         {postmortemReport?.trymintScores && (
           <div className="mb-3 p-2 bg-[#0a0f1a] rounded border border-[#1f2937] text-[10px]">
-            <div className="text-gray-500 mb-1">TRYMINT</div>
+            <div className="text-gray-500 mb-1">TRYMINT (0–25 per category, lower = safer)</div>
             <div className="flex flex-wrap gap-x-2 gap-y-0.5">
-              <span>D:{postmortemReport.trymintScores.dependency}/25</span>
-              <span>Dest:{postmortemReport.trymintScores.destructive}/25</span>
-              <span>B:{postmortemReport.trymintScores.behavioral}/25</span>
-              <span>N:{postmortemReport.trymintScores.network}/25</span>
+              <span>Dep:{postmortemReport.trymintScores.dependency}</span>
+              <span>Dest:{postmortemReport.trymintScores.destructive}</span>
+              <span>Beh:{postmortemReport.trymintScores.behavioral}</span>
+              <span>Net:{postmortemReport.trymintScores.network}</span>
             </div>
+          </div>
+        )}
+        {postmortemReport?.categories && Object.keys(postmortemReport.categories).length > 0 && (
+          <div className="mb-3 p-2 bg-[#0a0f1a] rounded border border-[#1f2937] text-[10px] space-y-1">
+            <div className="text-gray-500 mb-1">Categories</div>
+            {Object.values(postmortemReport.categories).map((cat) => (
+              <div key={cat.name} className="flex justify-between items-center">
+                <span className="text-gray-400">{cat.name}</span>
+                <span className={cat.status === 'pass' ? 'text-green-400' : cat.status === 'warn' ? 'text-amber-400' : 'text-red-400'}>
+                  {cat.score}% {cat.status === 'pass' ? '✓' : cat.status === 'warn' ? '!' : '✗'}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -201,7 +214,7 @@ export default function RiskReport() {
               </div>
             </div>
 
-            {/* Warnings */}
+            {/* Findings / Warnings */}
             <div>
               <button
                 onClick={() => setWarningsExpanded(!warningsExpanded)}
@@ -209,7 +222,10 @@ export default function RiskReport() {
               >
                 <h3 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-yellow-400" />
-                  Warnings
+                  {postmortemReport ? 'Findings' : 'Warnings'}
+                  {warnings.length > 0 && (
+                    <span className="text-[10px] font-normal text-gray-500">({warnings.length})</span>
+                  )}
                 </h3>
                 {warningsExpanded ? (
                   <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -218,9 +234,9 @@ export default function RiskReport() {
                 )}
               </button>
               {warningsExpanded && (
-                <div className="mt-2 space-y-2">
+                <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
                   {warnings.length === 0 ? (
-                    <p className="text-xs text-gray-500 italic py-2">No warnings</p>
+                    <p className="text-xs text-gray-500 italic py-2">No findings</p>
                   ) : (
                     warnings.map((warning, index) => (
                       <div
@@ -240,7 +256,12 @@ export default function RiskReport() {
                         ) : (
                           <Info className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                         )}
-                        <span className="text-xs text-gray-300">{warning.message}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-xs text-gray-300 block">{warning.message}</span>
+                          {warning.location && (
+                            <span className="text-[10px] text-gray-500 font-mono mt-0.5 block">{warning.location}</span>
+                          )}
+                        </div>
                       </div>
                     ))
                   )}

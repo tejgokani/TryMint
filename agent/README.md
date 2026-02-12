@@ -28,6 +28,11 @@ For production (Render backend), set the WebSocket URL:
 TRYMINT_WS_URL=https://trymint.onrender.com trymint connect -s SESS_XXX -t YOUR_TOKEN
 ```
 
+**Windows (PowerShell):**
+```powershell
+$env:TRYMINT_WS_URL="https://trymint.onrender.com"; trymint connect -s SESS_XXX -t YOUR_TOKEN
+```
+
 Get session credentials from the [TRYMINT web app](https://trymint.vercel.app) → Start Session.
 
 ---

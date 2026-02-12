@@ -169,6 +169,37 @@ For production:
 export TRYMINT_WS_URL=https://trymint-backend-XXXX.onrender.com
 ```
 
+### Running on Windows
+
+The agent works on Windows (Node.js 18+). Use PowerShell or Command Prompt.
+
+**Install:**
+```powershell
+npm install -g trymint-agent
+```
+
+**Set backend URL (PowerShell):**
+```powershell
+$env:TRYMINT_WS_URL="https://trymint.onrender.com"
+trymint connect --session=SESS_XXX --token=YOUR_TOKEN
+```
+
+**Or in one line (PowerShell):**
+```powershell
+$env:TRYMINT_WS_URL="https://trymint.onrender.com"; trymint connect -s SESS_XXX -t YOUR_TOKEN
+```
+
+**Command Prompt (cmd):**
+```cmd
+set TRYMINT_WS_URL=https://trymint.onrender.com
+trymint connect -s SESS_XXX -t YOUR_TOKEN
+```
+
+**Permanent env var (Windows):**
+1. Search "Environment Variables" in Start
+2. Edit "User variables" → "Path" or add new variable `TRYMINT_WS_URL` = `https://trymint.onrender.com`
+3. Restart terminal
+
 ### Agent lifecycle
 
 1. User starts a session in the browser → gets Session ID + Token.
