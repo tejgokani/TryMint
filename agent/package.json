@@ -1,13 +1,16 @@
 {
-  "name": "@trymint/agent",
+  "name": "trymint-agent",
   "version": "1.0.0",
-  "description": "TRYMINT Agent - Local CLI for command execution",
-  "private": true,
+  "description": "TRYMINT Agent - CLI for secure package management sandbox. Connect to TRYMINT backend to run npm install in an isolated environment.",
   "type": "module",
   "main": "src/index.js",
   "bin": {
     "trymint": "./src/cli/index.js"
   },
+  "files": [
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "dev": "node src/index.js",
     "test": "node --test",
@@ -27,5 +30,19 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "keywords": [
+    "trymint",
+    "npm",
+    "sandbox",
+    "security",
+    "package-manager",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tejgokani/TryMint.git",
+    "directory": "agent"
+  },
+  "license": "MIT"
 }

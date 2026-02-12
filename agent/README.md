@@ -1,6 +1,36 @@
-# Agent – TRYMINT Local CLI
+# TRYMINT Agent
 
-> Local command-line agent for secure command execution
+> CLI for secure package management sandbox. Connect to TRYMINT backend to run npm install in an isolated environment.
+
+## Installation
+
+```bash
+# Install globally (requires npm)
+npm install -g trymint-agent
+
+# Or run without installing
+npx trymint-agent connect --session=SESS_XXX --token=YOUR_TOKEN
+```
+
+## Usage
+
+```bash
+# Connect to backend (production: set TRYMINT_WS_URL)
+trymint connect --session=SESS_XXX --token=YOUR_TOKEN
+
+# Or shortened
+trymint connect -s SESS_XXX -t YOUR_TOKEN
+```
+
+For production (Render backend), set the WebSocket URL:
+
+```bash
+TRYMINT_WS_URL=https://trymint.onrender.com trymint connect -s SESS_XXX -t YOUR_TOKEN
+```
+
+Get session credentials from the [TRYMINT web app](https://trymint.vercel.app) → Start Session.
+
+---
 
 ## Purpose
 

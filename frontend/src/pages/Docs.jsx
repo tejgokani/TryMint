@@ -383,7 +383,7 @@ export default function Docs() {
                 <div>
                   <h3 className="text-xl font-semibold mb-2">trymint connect</h3>
                   <p className="text-gray-300 mb-2">Connect to a sandbox session</p>
-                  <CodeBlock code={`trymint connect --session=SESS_XXXX --token=YOUR_TOKEN [--cleanup_live_ID]`} />
+                  <CodeBlock code={`trymint connect --session=SESS_XXXX --token=YOUR_TOKEN`} />
                   <p className="text-gray-400 text-sm mt-2">Options:</p>
                   <ul className="list-disc list-inside space-y-1 text-gray-300 ml-4 text-sm">
                     <li><code className="bg-[#1f2937] px-1 rounded">--session</code>: Session ID</li>

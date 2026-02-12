@@ -58,8 +58,7 @@ export default function SessionCredentials() {
     if (!displaySession) return ''
     const sessionId = displaySession.id.replace(/-/g, '_')
     const token = displaySession.secret
-    const cleanupId = `cleanup_live_${Math.random().toString(36).substring(2, 7)}`
-    return `trymint connect --session=${sessionId} --token=${token} --${cleanupId}`
+    return `trymint connect --session=${sessionId} --token=${token}`
   }
 
   const handleRegenerate = async () => {
