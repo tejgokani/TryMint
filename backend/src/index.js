@@ -14,6 +14,9 @@ import { sessionService } from './services/index.js';
 
 const app = express();
 
+// Trust proxy when behind Render/Heroku/nginx (needed for express-rate-limit to read X-Forwarded-For)
+app.set('trust proxy', 1);
+
 // Global middleware
 app.use(helmet());
 app.use(express.json());

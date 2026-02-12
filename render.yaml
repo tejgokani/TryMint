@@ -1,0 +1,25 @@
+# Render Blueprint - TRYMINT Backend
+# Deploy: Connect repo → Render finds this file → Create Web Service
+
+services:
+  - type: web
+    name: trymint-backend
+    runtime: node
+    region: oregon  # or singapore, frankfurt
+    rootDir: backend
+
+    buildCommand: npm install
+    startCommand: npm run start
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRYMINT_LOG_LEVEL
+        value: info
+      # Add these in Render Dashboard → Environment (sensitive):
+      # - JWT_SECRET (generate: openssl rand -base64 32)
+      # - TRYMINT_CORS_ORIGIN (e.g. https://trymint.vercel.app,https://trymint-*.vercel.app)
+      # - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL (if using OAuth)
+      # - OPENAI_API_KEY (optional, for AI summaries)
+
+    healthCheckPath: /v1/health

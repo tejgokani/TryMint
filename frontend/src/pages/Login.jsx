@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -19,42 +19,45 @@ export default function Login() {
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const oauthProcessed = useRef(false)
 
   // Handle OAuth callback (token from redirect)
   useEffect(() => {
     const token = searchParams.get('token')
-    const email = searchParams.get('email')
+    const emailParam = searchParams.get('email')
     const name = searchParams.get('name')
     const error = searchParams.get('error')
-    
+
+    if (oauthProcessed.current) return
+
     if (error) {
-      handleError(new Error(error), showError)
-      // Remove error from URL
+      oauthProcessed.current = true
+      handleError(new Error(decodeURIComponent(error)), showError)
       navigate('/login', { replace: true })
       return
     }
 
-    if (token && email) {
-      handleOAuthCallback(token, email, name)
+    if (token && emailParam) {
+      oauthProcessed.current = true
+      handleOAuthCallback(token, emailParam, name)
     }
-  }, [searchParams])
+  }, [searchParams, navigate, showError])
 
-  const handleOAuthCallback = (token, email, name) => {
+  const handleOAuthCallback = (token, emailParam, name) => {
     setIsLoading(true)
-    
+
     try {
       localStorage.setItem('trymint_token', token)
       const licenseId = generateLicenseId()
       const userData = {
         id: `user-${Date.now()}`,
-        email: email,
-        name: name || email.split('@')[0],
+        email: emailParam,
+        name: name ? decodeURIComponent(name) : emailParam.split('@')[0],
         role: 'Developer',
         licenseId: licenseId,
       }
       login(userData)
       showSuccess('Google login successful!')
-      // Remove token from URL
       navigate('/', { replace: true })
     } catch (error) {
       handleError(error, showError)

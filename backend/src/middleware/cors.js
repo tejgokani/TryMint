@@ -1,18 +1,25 @@
 import cors from 'cors';
 import { appConfig } from '../config/index.js';
 
-// In development, allow localhost and 127.0.0.1 (Vite can serve from either)
+// Parse comma-separated origins for production (e.g. Vercel + preview URLs)
+const parseOrigins = (val) => {
+  if (!val || val === '*') return ['*'];
+  return val.split(',').map((s) => s.trim()).filter(Boolean);
+};
+
 const corsOptions = {
   credentials: true,
   origin: (origin, cb) => {
-    if (process.env.NODE_ENV !== 'development') {
-      return cb(null, appConfig.corsOrigin);
-    }
-    const allowed = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'];
-    if (!origin || allowed.includes(origin)) {
+    const allowed = parseOrigins(appConfig.corsOrigin);
+    if (allowed.includes('*')) {
       return cb(null, true);
     }
-    cb(null, appConfig.corsOrigin);
+    const devAllowed = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'];
+    const all = [...new Set([...allowed, ...devAllowed])];
+    if (!origin || all.includes(origin)) {
+      return cb(null, true);
+    }
+    cb(null, allowed[0] ?? true);
   }
 };
 

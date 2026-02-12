@@ -139,28 +139,28 @@ export async function initiateOAuth(req, res, next) {
   }
 }
 
+function redirectToLoginWithError(res, errorMessage) {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const redirectUrl = `${frontendUrl}/login?error=${encodeURIComponent(errorMessage)}`;
+  res.redirect(redirectUrl);
+}
+
 export async function handleCallback(req, res, next) {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
   try {
     const { code, state } = req.query;
     const { googleClientId, googleClientSecret, googleCallbackUrl } = authConfig;
 
     if (!code) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Authorization code is required'
-        }
-      });
+      redirectToLoginWithError(res, 'Authorization code is missing. Please try again.');
+      return;
     }
 
     if (!googleClientId || googleClientId === 'stub-google-client-id' ||
         !googleClientSecret || googleClientSecret === 'stub-google-client-secret') {
-      return res.status(500).json({
-        success: false,
-        error: {
-          message: 'Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in environment variables.'
-        }
-      });
+      redirectToLoginWithError(res, 'Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in backend/.env');
+      return;
     }
 
     // Exchange authorization code for access token
@@ -178,19 +178,19 @@ export async function handleCallback(req, res, next) {
       }),
     });
 
+    const tokenData = await tokenResponse.json().catch(() => ({}));
+
     if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.json();
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'Failed to exchange authorization code',
-          details: errorData
-        }
-      });
+      const errMsg = tokenData?.error_description || tokenData?.error || 'Token exchange failed';
+      redirectToLoginWithError(res, `Google auth failed: ${errMsg}`);
+      return;
     }
 
-    const tokenData = await tokenResponse.json();
-    const { access_token } = tokenData;
+    const access_token = tokenData?.access_token;
+    if (!access_token) {
+      redirectToLoginWithError(res, 'Google did not return an access token. Please try again.');
+      return;
+    }
 
     // Get user info from Google
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -200,26 +200,25 @@ export async function handleCallback(req, res, next) {
     });
 
     if (!userInfoResponse.ok) {
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'Failed to fetch user information from Google'
-        }
-      });
+      redirectToLoginWithError(res, 'Failed to fetch your profile from Google.');
+      return;
     }
 
     const googleUser = await userInfoResponse.json();
-    
-    // Create or find user in your system
+    const email = googleUser?.email;
+    if (!email) {
+      redirectToLoginWithError(res, 'Google did not provide your email. Please grant email permission.');
+      return;
+    }
+
     const userData = {
-      id: `user-${googleUser.id}`,
-      name: googleUser.name || googleUser.email.split('@')[0],
-      email: googleUser.email,
+      id: `user-${googleUser.id || Date.now()}`,
+      name: googleUser.name || email.split('@')[0],
+      email,
       picture: googleUser.picture,
       role: 'Developer',
     };
 
-    // Generate JWT token
     const token = jwt.sign(
       {
         userId: userData.id,
@@ -230,13 +229,10 @@ export async function handleCallback(req, res, next) {
       { expiresIn: authConfig.jwtExpiry }
     );
 
-    // Redirect to frontend with token in URL
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const redirectUrl = `${frontendUrl}/login?token=${encodeURIComponent(token)}&email=${encodeURIComponent(userData.email)}&name=${encodeURIComponent(userData.name)}`;
-    
     res.redirect(redirectUrl);
   } catch (err) {
-    next(err);
+    redirectToLoginWithError(res, err.message || 'An unexpected error occurred');
   }
 }
 
