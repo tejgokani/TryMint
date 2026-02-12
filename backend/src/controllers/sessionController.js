@@ -28,7 +28,18 @@ export async function create(req, res, next) {
 
 export async function getStatus(req, res, next) {
   try {
-    const { sessionId } = req.query;
+    // Support both path param and query param
+    const sessionId = req.params.sessionId || req.query.sessionId;
+    
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Session ID is required'
+        }
+      });
+    }
+
     const session = sessionService.getSession(sessionId);
 
     res.json({
@@ -65,7 +76,18 @@ export async function refresh(req, res, next) {
 
 export async function terminate(req, res, next) {
   try {
-    const { sessionId } = req.body || {};
+    // Support both path param and body
+    const sessionId = req.params.sessionId || req.body?.sessionId;
+    
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Session ID is required'
+        }
+      });
+    }
+
     sessionService.terminateSession(sessionId);
     res.json({
       success: true,

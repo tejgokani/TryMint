@@ -8,7 +8,8 @@
  * @property {string} workingDir
  * @property {'PENDING'|'SIMULATING'|'SIMULATED'|'APPROVED'|'REJECTED'|'EXECUTING'|'COMPLETED'|'FAILED'|'CANCELLED'} status
  * @property {Object|null} simulationResult
- * @property {Object|null} executionResult
+ * @property {Object|null} executionResult - { exitCode, duration, executionSteps[] }
+ * @property {Array} executionSteps - Lifecycle steps: [{ phase, timestamp, status?, duration? }]
  * @property {Date} createdAt
  * @property {Date|null} completedAt
  */

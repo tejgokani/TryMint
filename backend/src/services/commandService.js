@@ -1,47 +1,14 @@
-// Command submission, simulation (mock), approval, and execution routing.
+// Command submission, simulation, approval, and execution routing.
 // NOTE: Backend never executes commands itself – it only coordinates with the agent.
+// Risk evaluation uses riskEngine (real analysis, no mocks).
 
 import { commandStore } from '../models/index.js';
 import { generateCommandId } from '../utils/index.js';
 import { AppError, ValidationError } from '../utils/errors.js';
-
-function basicRiskEvaluation(command, workingDir) {
-  // Very lightweight, purely string-based "risk" evaluation for simulation.
-  const highRiskPatterns = ['rm -rf', 'mkfs', ':(){:|:&};:', 'shutdown', 'reboot'];
-  const mediumRiskPatterns = ['sudo', 'chown', 'chmod', 'apt', 'yum', 'brew'];
-
-  const lowered = command.toLowerCase();
-  const warnings = [];
-  const effects = [];
-
-  let riskLevel = 'LOW';
-
-  if (highRiskPatterns.some((p) => lowered.includes(p))) {
-    riskLevel = 'HIGH';
-    warnings.push('Command appears destructive.');
-  } else if (mediumRiskPatterns.some((p) => lowered.includes(p))) {
-    riskLevel = 'MEDIUM';
-    warnings.push('Command may require elevated privileges or modify system state.');
-  }
-
-  // Very simple effect description for UX – can be expanded later.
-  if (lowered.startsWith('ls')) {
-    effects.push({ type: 'READ_DIR', target: workingDir });
-  } else if (lowered.startsWith('cat')) {
-    effects.push({ type: 'READ_FILE', target: 'unknown' });
-  }
-
-  return {
-    success: true,
-    riskLevel,
-    effects,
-    warnings,
-    canExecute: riskLevel !== 'HIGH'
-  };
-}
+import { evaluate } from '../riskEngine/index.js';
 
 export const commandService = {
-  submitForSimulation({ sessionId, command, workingDir }) {
+  async submitForSimulation({ sessionId, command, workingDir }) {
     if (!command || !workingDir) {
       throw new ValidationError('command and workingDir are required');
     }
@@ -57,6 +24,7 @@ export const commandService = {
       status: 'SIMULATING',
       simulationResult: null,
       executionResult: null,
+      executionSteps: [{ phase: 'SUBMITTED', timestamp: now.getTime(), status: 'pending' }],
       createdAt: now,
       completedAt: null,
       approved: false
@@ -64,12 +32,27 @@ export const commandService = {
 
     commandStore.upsert(cmd);
 
-    // Immediately compute a mock simulation result – in a real deployment
-    // this might be delegated to the agent over WebSocket.
-    const simulationResult = basicRiskEvaluation(command, workingDir);
+    const evaluation = await evaluate(command, workingDir);
+
+    const simulationResult = {
+      success: evaluation.success,
+      riskLevel: evaluation.riskLevel,
+      finalScore: evaluation.finalScore,
+      destructiveness: evaluation.destructiveness,
+      privilege: evaluation.privilege,
+      dependencyRisk: evaluation.dependencyRisk,
+      networkRisk: evaluation.networkRisk,
+      behavioralRisk: evaluation.behavioralRisk,
+      triggers: evaluation.triggers,
+      analysisSteps: evaluation.analysisSteps,
+      effects: evaluation.effects || [],
+      warnings: evaluation.warnings || [],
+      canExecute: evaluation.canExecute,
+    };
 
     cmd.status = 'SIMULATED';
     cmd.simulationResult = simulationResult;
+    cmd.executionSteps.push({ phase: 'SIMULATED', timestamp: Date.now(), status: 'complete', riskLevel: simulationResult.riskLevel });
     commandStore.upsert(cmd);
 
     return cmd;
@@ -85,6 +68,7 @@ export const commandService = {
     }
     cmd.approved = true;
     cmd.status = 'APPROVED';
+    cmd.executionSteps.push({ phase: 'APPROVED', timestamp: Date.now(), status: 'complete' });
     commandStore.upsert(cmd);
     return cmd;
   },
@@ -111,6 +95,7 @@ export const commandService = {
       throw new AppError('Command not found', 404);
     }
     cmd.status = 'EXECUTING';
+    cmd.executionSteps.push({ phase: 'EXECUTING', timestamp: Date.now(), status: 'started' });
     commandStore.upsert(cmd);
     return cmd;
   },
@@ -121,8 +106,17 @@ export const commandService = {
       throw new AppError('Command not found', 404);
     }
     cmd.status = 'COMPLETED';
-    cmd.executionResult = executionResult;
-    cmd.completedAt = new Date();
+    const completedAt = new Date();
+    const steps = [...(cmd.executionSteps || []), {
+      phase: 'COMPLETED',
+      timestamp: completedAt.getTime(),
+      status: 'complete',
+      exitCode: executionResult?.exitCode,
+      duration: executionResult?.duration,
+    }];
+    cmd.executionResult = { ...executionResult, executionSteps: steps };
+    cmd.executionSteps = steps;
+    cmd.completedAt = completedAt;
     commandStore.upsert(cmd);
     return cmd;
   },
@@ -133,8 +127,17 @@ export const commandService = {
       throw new AppError('Command not found', 404);
     }
     cmd.status = 'FAILED';
-    cmd.executionResult = executionResult;
-    cmd.completedAt = new Date();
+    const failedAt = new Date();
+    const steps = [...(cmd.executionSteps || []), {
+      phase: 'FAILED',
+      timestamp: failedAt.getTime(),
+      status: 'failed',
+      exitCode: executionResult?.exitCode,
+      duration: executionResult?.duration,
+    }];
+    cmd.executionResult = { ...executionResult, executionSteps: steps };
+    cmd.executionSteps = steps;
+    cmd.completedAt = failedAt;
     commandStore.upsert(cmd);
     return cmd;
   },

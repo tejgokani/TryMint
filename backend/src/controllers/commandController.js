@@ -7,7 +7,7 @@ export async function simulate(req, res, next) {
     const { command, workingDir } = req.body || {};
     const { sessionId } = req.query;
 
-    const cmd = commandService.submitForSimulation({
+    const cmd = await commandService.submitForSimulation({
       sessionId,
       command,
       workingDir

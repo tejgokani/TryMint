@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRYMINT Frontend-Backend Integration Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0f1a;
+            color: #00ff88;
+        }
+        .test-section {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #00ff8820;
+            color: #00ff88;
+        }
+        .error {
+            background: #ef444420;
+            color: #ef4444;
+        }
+        .warning {
+            background: #fbbf2420;
+            color: #fbbf24;
+        }
+        button {
+            background: #00ff88;
+            color: #0a0f1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover {
+            background: #00e67a;
+        }
+        button:disabled {
+            background: #1f2937;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+        input {
+            background: #0a0f1a;
+            border: 1px solid #1f2937;
+            color: #00ff88;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px;
+            width: 250px;
+        }
+        pre {
+            background: #0a0f1a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 TRYMINT Frontend-Backend Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Backend Connection Test</h2>
+        <button onclick="testBackendConnection()">Test Backend Connection</button>
+        <div id="connection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Authentication Test</h2>
+        <input type="email" id="email" placeholder="Email" value="developer@trymint.io">
+        <input type="password" id="password" placeholder="Password" value="password123">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Session Management Test</h2>
+        <input type="text" id="licenseId" placeholder="License ID" value="TEST-LICENSE-123">
+        <button onclick="testCreateSession()">Create Session</button>
+        <button onclick="testGetSession()">Get Session Status</button>
+        <button onclick="testRefreshSession()">Refresh Session</button>
+        <button onclick="testTerminateSession()">Terminate Session</button>
+        <div id="session-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Error Handling Test</h2>
+        <button onclick="testInvalidLogin()">Test Invalid Login</button>
+        <button onclick="testUnauthorizedAccess()">Test Unauthorized Access</button>
+        <div id="error-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. CORS Test</h2>
+        <button onclick="testCORS()">Test CORS</button>
+        <div id="cors-result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/v1';
+        let authToken = localStorage.getItem('trymint_token') || null;
+        let currentSessionId = null;
+
+        function addResult(elementId, message, type = 'success') {
+            const element = document.getElementById(elementId);
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            element.appendChild(div);
+        }
+
+        function clearResult(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            };
+
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    ...options,
+                    headers,
+                });
+
+                const data = await response.json();
+                return {
+                    success: response.ok,
+                    status: response.status,
+                    data,
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error.message,
+                };
+            }
+        }
+
+        async function testBackendConnection() {
+            clearResult('connection-result');
+            addResult('connection-result', 'Testing backend connection...', 'warning');
+            
+            const result = await apiRequest('/health');
+            
+            if (result.success) {
+                addResult('connection-result', `✅ Backend is reachable!<br>Status: ${JSON.stringify(result.data, null, 2)}`, 'success');
+            } else {
+                addResult('connection-result', `❌ Backend connection failed: ${result.error || JSON.stringify(result.data)}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            clearResult('login-result');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            addResult('login-result', 'Attempting login...', 'warning');
+            
+            const result = await apiRequest('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (result.success && result.data.success) {
+                authToken = result.data.data.token;
+                localStorage.setItem('trymint_token', authToken);
+                addResult('login-result', `✅ Login successful!<br>Token: ${authToken.substring(0, 30)}...<br>User: ${JSON.stringify(result.data.data.user, null, 2)}`, 'success');
+            } else {
+                addResult('login-result', `❌ Login failed: ${result.data?.error?.message || result.error}`, 'error');
+            }
+        }
+
+        async function testCreateSession() {
+            clearResult('session-result');
+            const licenseId = document.getElementById('licenseId').value;
+            
+            if (!authToken) {
+                addResult('session-result', '❌ Please login first!', 'error');
+                return;
+            }
+
+            addResult('session-result', 'Creating session...', 'warning');
+            
+            const result = await apiRequest('/session', {
+                method: 'POST',
+                body: JSON.stringify({ licenseId, ttlMs: 7200000 }),
+            });
+
+            if (result.success && result.data.success) {
+                currentSessionId = result.data.data.sessionId;
+                addResult('session-result', `✅ Session created!<br>Session ID: ${currentSessionId}<br>Secret: ${result.data.data.sessionSecret.substring(0, 30)}...<br>Expires: ${new Date(result.data.data.expiresAt).toLocaleString()}`, 'success');
+            } else {
+                addResult('session-result', `❌ Create session failed: ${result.data?.error?.message || result.error}`, 'error');
+            }
+        }
+
+        async function testGetSession() {
+            clearResult('session-result');
+            
+            if (!currentSessionId) {
+                addResult('session-result', '❌ Please create a session first!', 'error');
+                return;
+            }
+
+            addResult('session-result', 'Getting session status...', 'warning');
+            
+            const result = await apiRequest(`/session/${currentSessionId}`);
+
+            if (result.success && result.data.success) {
+                addResult('session-result', `✅ Session status retrieved:<br><pre>${JSON.stringify(result.data.data, null, 2)}</pre>`, 'success');
+            } else {
+                addResult('session-result', `❌ Get session failed: ${result.data?.error?.message || result.error}`, 'error');
+            }
+        }
+
+        async function testRefreshSession() {
+            clearResult('session-result');
+            
+            if (!currentSessionId) {
+                addResult('session-result', '❌ Please create a session first!', 'error');
+                return;
+            }
+
+            addResult('session-result', 'Refreshing session...', 'warning');
+            
+            const result = await apiRequest('/session/refresh', {
+                method: 'POST',
+                body: JSON.stringify({ sessionId: currentSessionId }),
+            });
+
+            if (result.success && result.data.success) {
+                addResult('session-result', `✅ Session refreshed!<br>New Secret: ${result.data.data.sessionSecret.substring(0, 30)}...<br>New Expires: ${new Date(result.data.data.expiresAt).toLocaleString()}`, 'success');
+            } else {
+                addResult('session-result', `⚠️ Refresh failed (may be expected if refresh window not reached): ${result.data?.error?.message || result.error}`, 'warning');
+            }
+        }
+
+        async function testTerminateSession() {
+            clearResult('session-result');
+            
+            if (!currentSessionId) {
+                addResult('session-result', '❌ Please create a session first!', 'error');
+                return;
+            }
+
+            addResult('session-result', 'Terminating session...', 'warning');
+            
+            const result = await apiRequest(`/session/${currentSessionId}`, {
+                method: 'DELETE',
+            });
+
+            if (result.success && result.data.success) {
+                addResult('session-result', `✅ Session terminated successfully!`, 'success');
+                currentSessionId = null;
+            } else {
+                addResult('session-result', `❌ Terminate session failed: ${result.data?.error?.message || result.error}`, 'error');
+            }
+        }
+
+        async function testInvalidLogin() {
+            clearResult('error-result');
+            addResult('error-result', 'Testing invalid login...', 'warning');
+            
+            const result = await apiRequest('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email: 'invalid@example.com', password: 'wrong' }),
+            });
+
+            if (!result.success || result.status === 401) {
+                addResult('error-result', `✅ Invalid login properly rejected (Status: ${result.status})`, 'success');
+            } else {
+                addResult('error-result', `⚠️ Invalid login was accepted (unexpected): ${JSON.stringify(result.data)}`, 'warning');
+            }
+        }
+
+        async function testUnauthorizedAccess() {
+            clearResult('error-result');
+            addResult('error-result', 'Testing unauthorized access...', 'warning');
+            
+            // Try to access protected endpoint without token
+            const oldToken = authToken;
+            authToken = null;
+            
+            const result = await apiRequest('/auth/me');
+            
+            authToken = oldToken; // Restore token
+            
+            if (!result.success || result.status === 401) {
+                addResult('error-result', `✅ Unauthorized access properly rejected (Status: ${result.status})`, 'success');
+            } else {
+                addResult('error-result', `❌ Unauthorized access was allowed (unexpected): ${JSON.stringify(result.data)}`, 'error');
+            }
+        }
+
+        async function testCORS() {
+            clearResult('cors-result');
+            addResult('cors-result', 'Testing CORS...', 'warning');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'http://localhost:5173',
+                    },
+                });
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                };
+
+                if (corsHeaders['Access-Control-Allow-Origin']) {
+                    addResult('cors-result', `✅ CORS is configured!<br><pre>${JSON.stringify(corsHeaders, null, 2)}</pre>`, 'success');
+                } else {
+                    addResult('cors-result', `⚠️ CORS headers not found (may still work):<br><pre>${JSON.stringify(corsHeaders, null, 2)}</pre>`, 'warning');
+                }
+            } catch (error) {
+                addResult('cors-result', `❌ CORS test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test backend connection on load
+        window.addEventListener('load', () => {
+            testBackendConnection();
+        });
+    </script>
+</body>
+</html>

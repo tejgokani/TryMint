@@ -102,10 +102,7 @@ export const sessionService = {
     assertSessionActive(session);
 
     const now = new Date();
-    if (session.expiresAt.getTime() - now.getTime() > sessionConfig.refreshWindowMs) {
-      throw new AppError('Refresh not allowed yet', 400);
-    }
-
+    // Allow refresh anytime for active sessions (removed restrictive refresh window)
     const newSecret = generateToken(32);
     session.sessionSecretHash = hashToken(newSecret);
     session.expiresAt = computeExpiry(); // extend TTL

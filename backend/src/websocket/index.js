@@ -5,7 +5,7 @@ import { WebSocketServer } from 'ws';
 import { websocketConfig } from '../config/index.js';
 import { sessionService } from '../services/index.js';
 import { logger } from '../utils/logger.js';
-import { addUiConnection, removeUiConnection, setAgentConnection, clearAgentConnection } from './channels.js';
+import { addUiConnection, removeUiConnection, setAgentConnection, clearAgentConnection, getAgentConnection } from './channels.js';
 import { broadcaster } from './broadcast.js';
 import { handleClientMessage, handleAgentMessage } from './handlers.js';
 
@@ -38,19 +38,23 @@ export function createWebSocketServers(httpServer) {
       const session = sessionService.validateSessionSecret(sessionId, sessionSecret);
       addUiConnection(session.id, ws);
 
+      const agentWs = getAgentConnection(session.id);
+      const agentConnected = agentWs && agentWs.readyState === 1; // 1 = OPEN
+
       ws.send(
         JSON.stringify({
           type: 'session:connected',
           payload: {
             sessionId: session.id,
-            expiresAt: session.expiresAt.getTime()
+            expiresAt: session.expiresAt.getTime(),
+            agentConnected
           },
           timestamp: Date.now()
         })
       );
 
-      ws.on('message', (data) => {
-        handleClientMessage({
+      ws.on('message', async (data) => {
+        await handleClientMessage({
           raw: data,
           ws,
           sessionId: session.id,

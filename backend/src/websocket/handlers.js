@@ -1,8 +1,10 @@
 // Unified WebSocket message handlers.
 
 import { commandService } from '../services/index.js';
+import { analyzePostmortem, formatTerminalReport } from '../services/postmortemService.js';
+import { getAgentConnection } from './channels.js';
 
-export function handleClientMessage({ raw, ws, sessionId, broadcaster }) {
+export async function handleClientMessage({ raw, ws, sessionId, broadcaster }) {
   let msg;
   try {
     msg = JSON.parse(raw.toString());
@@ -14,7 +16,7 @@ export function handleClientMessage({ raw, ws, sessionId, broadcaster }) {
 
   switch (type) {
     case 'command:submit': {
-      const cmd = commandService.submitForSimulation({
+      const cmd = await commandService.submitForSimulation({
         sessionId,
         command: payload.command,
         workingDir: payload.workingDir
@@ -54,8 +56,45 @@ export function handleClientMessage({ raw, ws, sessionId, broadcaster }) {
       });
       break;
     }
+    case 'filesystem:list': {
+      broadcaster.toAgent(sessionId, 'filesystem:list', payload);
+      break;
+    }
+    case 'filesystem:read': {
+      broadcaster.toAgent(sessionId, 'filesystem:read', payload);
+      break;
+    }
+    case 'postmortem:start': {
+      if (!getAgentConnection(sessionId)) {
+        broadcaster.toSession(sessionId, 'postmortem:error', {
+          error: 'Agent not connected. Run trymint connect in your project directory.'
+        });
+      } else {
+        broadcaster.toAgent(sessionId, 'agent:postmortem:request', payload);
+      }
+      break;
+    }
     default:
       break;
+  }
+}
+
+async function handlePostmortemData(sessionId, payload, broadcaster) {
+  try {
+    const { packageJson, files = {}, packagePath = '/', error } = payload;
+    if (error) {
+      broadcaster.toSession(sessionId, 'postmortem:error', { error });
+      return;
+    }
+    if (!packageJson) {
+      broadcaster.toSession(sessionId, 'postmortem:error', { error: 'No package.json data received' });
+      return;
+    }
+    const report = await analyzePostmortem({ packageJson, files, packagePath, deepScan: true });
+    const terminalReport = formatTerminalReport(report);
+    broadcaster.toSession(sessionId, 'postmortem:complete', { report, terminalReport });
+  } catch (err) {
+    broadcaster.toSession(sessionId, 'postmortem:error', { error: err.message || 'Postmortem analysis failed' });
   }
 }
 
@@ -95,6 +134,22 @@ export function handleAgentMessage({ raw, ws, sessionId, broadcaster }) {
     }
     case 'agent:heartbeat': {
       broadcaster.toSession(sessionId, 'agent:heartbeat', payload);
+      break;
+    }
+    case 'agent:ready': {
+      broadcaster.toSession(sessionId, 'agent:ready', payload);
+      break;
+    }
+    case 'filesystem:list:result': {
+      broadcaster.toSession(sessionId, 'filesystem:list:result', payload);
+      break;
+    }
+    case 'filesystem:content': {
+      broadcaster.toSession(sessionId, 'filesystem:content', payload);
+      break;
+    }
+    case 'agent:postmortem:data': {
+      handlePostmortemData(sessionId, payload, broadcaster).catch(() => {});
       break;
     }
     default:
