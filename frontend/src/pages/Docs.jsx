@@ -21,6 +21,7 @@ const sections = [
     items: [
       { id: 'introduction', title: 'Introduction' },
       { id: 'installation', title: 'Installation' },
+      { id: 'agent-setup', title: 'Agent Setup' },
       { id: 'quick-start', title: 'Quick Start' },
     ],
   },
@@ -255,11 +256,57 @@ export default function Docs() {
                   <li>Node.js version 18.0.0 or higher</li>
                   <li>npm version 9.0.0 or higher</li>
                 </ul>
-                <h3 className="text-xl font-semibold mt-6">Installation Steps</h3>
-                <CodeBlock code="npm install -g trymint" />
+                <h3 className="text-xl font-semibold mt-6">Install the Agent Package</h3>
+                <p className="text-gray-300 mb-2">Install TRYMINT agent globally (requires npm):</p>
+                <CodeBlock code="npm install -g trymint-agent" />
                 <h3 className="text-xl font-semibold mt-6">Verification</h3>
                 <p className="text-gray-300">Verify the installation by checking the version:</p>
                 <CodeBlock code="trymint --version" />
+              </div>
+            </section>
+
+            {/* Agent Setup */}
+            <section
+              ref={(el) => (contentRefs.current['agent-setup'] = el)}
+              id="agent-setup"
+              className="scroll-mt-8"
+            >
+              <h2 className="text-3xl font-bold mb-4">Agent Setup</h2>
+              <p className="text-gray-300 mb-6">
+                The agent connects to the TRYMINT backend and runs commands in an isolated sandbox. For production, set <code className="bg-[#1f2937] px-1 rounded">TRYMINT_WS_URL</code> to your backend URL.
+              </p>
+
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded bg-[#1f2937] flex items-center justify-center text-sm">🍎</span>
+                    macOS
+                  </h3>
+                  <p className="text-gray-300 mb-3">Add to <code className="bg-[#1f2937] px-1 rounded">~/.zshrc</code>:</p>
+                  <CodeBlock code={`# Add to ~/.zshrc (one-time)
+export TRYMINT_WS_URL=https://trymint.onrender.com
+
+# Then reload
+source ~/.zshrc`} />
+                  <p className="text-gray-300 mt-3">Connect with session credentials:</p>
+                  <CodeBlock code={`trymint connect --session=SESS_XXX --token=YOUR_TOKEN`} />
+                </div>
+
+                <div className="border-t border-[#1f2937] pt-8">
+                  <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded bg-[#1f2937] flex items-center justify-center text-sm">🪟</span>
+                    Windows
+                  </h3>
+                  <p className="text-gray-300 mb-2 font-medium">PowerShell:</p>
+                  <CodeBlock code={`$env:TRYMINT_WS_URL="https://trymint.onrender.com"
+trymint connect -s SESS_XXX -t YOUR_TOKEN`} />
+                  <p className="text-gray-300 mt-4 mb-2 font-medium">Or one line (PowerShell):</p>
+                  <CodeBlock code={`$env:TRYMINT_WS_URL="https://trymint.onrender.com"; trymint connect -s SESS_XXX -t YOUR_TOKEN`} />
+                  <p className="text-gray-300 mt-4 mb-2 font-medium">Command Prompt (cmd):</p>
+                  <CodeBlock code={`set TRYMINT_WS_URL=https://trymint.onrender.com
+trymint connect -s SESS_XXX -t YOUR_TOKEN`} />
+                  <p className="text-gray-300 mt-4 text-sm">For permanent env var: Windows Settings → System → About → Advanced system settings → Environment Variables → Add <code className="bg-[#1f2937] px-1 rounded">TRYMINT_WS_URL</code>.</p>
+                </div>
               </div>
             </section>
 

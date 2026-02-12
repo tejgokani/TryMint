@@ -146,8 +146,11 @@ export default function SessionCredentials() {
             <h1 className="text-2xl font-semibold text-white mb-2">
               Session Credentials
             </h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-sm mb-2">
               Use these to connect your local agent
+            </p>
+            <p className="text-gray-500 text-xs">
+              Install first: <code className="bg-[#0a0f1a] px-1 rounded">npm install -g trymint-agent</code>
             </p>
           </div>
 

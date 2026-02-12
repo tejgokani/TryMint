@@ -15,6 +15,7 @@ import {
   ChevronUp,
   Code,
 } from 'lucide-react'
+import CopyButton from '../common/CopyButton'
 import { useState } from 'react'
 
 const SEVERITY_COLORS = {
@@ -70,6 +71,7 @@ export default function PackageScanReport({ result }) {
 
   const {
     package: pkg,
+    command,
     scannedAt,
     finalScore = 0,
     totalScore = 0,
@@ -152,6 +154,39 @@ export default function PackageScanReport({ result }) {
         <p className="text-[10px] text-gray-500 mt-1.5">
           Scanned: {scannedAt ? new Date(scannedAt).toLocaleString() : '—'}
         </p>
+      </div>
+
+      {/* Installation Command & Scan Process */}
+      <div className="px-5 py-4 border-b border-[#1f2937] space-y-3">
+        {command && (
+          <div>
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Installation Command</h3>
+            <div className="flex items-center gap-2 p-2.5 bg-[#0a0f1a] rounded border border-[#1f2937]">
+              <code className="flex-1 text-sm text-[#00ff88] font-mono">
+                {command}
+              </code>
+              <CopyButton text={command} aria-label="Copy command" />
+            </div>
+          </div>
+        )}
+        {analysisSteps?.length > 0 && (
+          <div>
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Scan Process</h3>
+            <div className="space-y-1.5 max-h-40 overflow-y-auto">
+              {analysisSteps.flatMap((section) =>
+                (section.steps || []).map((step, j) => (
+                  <div key={`${section.section}-${j}`} className="flex items-start gap-2 text-xs">
+                    <span className="text-[#00ff88] mt-0.5 flex-shrink-0">›</span>
+                    <span className="text-gray-300 flex-1">
+                      <span className="text-gray-500">{step.check}</span>
+                      {step.result && <span className="text-gray-400"> → {step.result}</span>}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Findings */}
