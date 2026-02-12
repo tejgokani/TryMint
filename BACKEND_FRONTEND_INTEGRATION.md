@@ -21,7 +21,7 @@
 
 4. **CORS Configuration (`backend/src/config/app.js`)**
    - Updated to allow frontend origin (`http://localhost:5173`) in development mode
-   - Falls back to `*` in production if `TRYMINT_CORS_ORIGIN` is not set
+   - Falls back to `*` in production if `TRYMINT_CORS_ORIGIN` is not 
 
 ### Frontend Changes
 
