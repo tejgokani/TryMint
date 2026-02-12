@@ -4,7 +4,7 @@
 
 ## Overview
 
-TRYMINT is a security-focused platform that enables users to **simulate**, **review**, and **approve** command executions before they are actually run on their local machines. The system provides a safe sandbox environment where commands are first simulated, then reviewed for approval, and only executed after explicit user consent.
+TRYMINT is a security-focused platform that enables users to **simulate**, **review**, and **approve** command executions before they are actually run on their local machines. The system provides a safe sandbox environment where commands are first simulated, then reviewed for approval, and only executed after explicit user consent
 
 ## Architecture
 
