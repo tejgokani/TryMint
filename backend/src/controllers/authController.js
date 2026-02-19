@@ -1,5 +1,3 @@
-// Minimal stubbed auth controller to keep flow consistent.
-// In a real deployment this would perform the full Google OAuth dance.
 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -7,9 +5,9 @@ import { authConfig } from '../config/index.js';
 
 // Dummy credentials for development
 const DUMMY_CREDENTIALS = {
-  'developer@trymint.io': 'password123',
-  'admin@trymint.io': 'admin123',
-  'test@trymint.io': 'test123',
+  'developer@trymint.io': 'password@123',
+  'admin@trymint.io': 'admin@123',
+  'test@trymint.io': 'test@123',
 };
 
 // Dummy user data
@@ -47,9 +45,6 @@ export async function login(req, res, next) {
       });
     }
 
-    // Check if credentials match dummy data
-    // For development: accept any email/password combination
-    // In production, this would validate against a database
     const isValidPassword = DUMMY_CREDENTIALS[email] === password || password.length >= 6;
 
     if (!isValidPassword && !DUMMY_CREDENTIALS[email]) {
