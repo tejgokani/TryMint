@@ -35,3 +35,4 @@ export function getAgentConnection(sessionId) {
   return agentConnectionBySession.get(sessionId) || null;
 }
 
+//channels updated
